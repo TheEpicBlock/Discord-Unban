@@ -4,6 +4,7 @@ import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.Message;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.Role;
 import io.github.theepicblock.discordunban.banmanagement.BanManager;
+import io.github.theepicblock.discordunban.banmanagement.DKBansBanManager;
 import io.github.theepicblock.discordunban.banmanagement.VanillaBanManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -33,7 +34,12 @@ public class DiscordUnban extends JavaPlugin {
         roleId = config.getString("Role");
         discordEventProcessor = new DiscordEventProcessor(this);
 
-        banManager = new VanillaBanManager(this);
+        if (getServer().getPluginManager().getPlugin("DKBans")!=null){  //dkbans is installed
+            getLogger().info("Enabled DKBans integration");
+            banManager = new DKBansBanManager();
+        } else {
+            banManager = new VanillaBanManager(this);
+        }
 
         DiscordSRV.api.subscribe(discordEventProcessor);
     }
@@ -49,15 +55,12 @@ public class DiscordUnban extends JavaPlugin {
 
         //series of checks to perform if the message is valid
         if (!enabledChannels.contains(msg.getChannel().getId())) {
-            getLogger().info("wrong channel");
             return false; //the message isn't in the right channel. Since it isn't in the enabledChannels list
         }
         if (!msg.getContentRaw().startsWith(command)) {
-            getLogger().info("wrong command");
             return false; //the message doesn't start with the command
         }
         if (!msg.getGuild().getMember(msg.getAuthor()).getRoles().contains(role)) {
-            getLogger().info("wrong perms");
             return false;
         }
 
@@ -77,8 +80,6 @@ public class DiscordUnban extends JavaPlugin {
     }
 
     public OfflinePlayer getPlayerFromTargetted(String Message) {
-        System.out.println("MEHMEHMEH: '" + Message + "'");
-
         if (Message == "") {
             return null;
         }
