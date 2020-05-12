@@ -10,31 +10,14 @@ import org.bukkit.OfflinePlayer;
 import java.util.UUID;
 
 public class DiscordEventProcessor {
-    DiscordUnban plugin;
+    MessageProcessor messageProcessor;
 
-    public DiscordEventProcessor(DiscordUnban plugin) {
-        this.plugin = plugin;
+    public DiscordEventProcessor(MessageProcessor messageProcessor) {
+        this.messageProcessor = messageProcessor;
     }
 
     @Subscribe(priority = ListenerPriority.MONITOR)
     public void discordMessageReceived(DiscordGuildMessageReceivedEvent event) {
-        if (plugin.checkForCommand(event.getMessage())) {
-            //get the user who's unbanning
-            UUID reportedID = DiscordSRV.getPlugin().getAccountLinkManager().getUuid(event.getAuthor().getId());
-
-            //try to get the player from the message
-            String playerStr = plugin.stripCommand(event.getMessage().getContentRaw());
-            OfflinePlayer player = plugin.getPlayerFromTargetted(playerStr);
-            if (player != null) {
-                if (plugin.getBanManager().isBanned(player)) { //check if actually banned
-                    plugin.getBanManager().unban(player, reportedID);
-                    DiscordUtil.sendMessage(event.getChannel(),String.format("%s has been successfully unbanned by %s", player.getName(), event.getAuthor()));
-                } else { //the player wasn't banned
-                    DiscordUtil.sendMessage(event.getChannel(),String.format("%s, %s is not banned", event.getAuthor(), player.getName()));
-                }
-            } else { //the player is null
-                DiscordUtil.sendMessage(event.getChannel(),String.format("%s, couldn't find %s", event.getAuthor(), playerStr));
-            }
-        }
+        messageProcessor.process(event.getMessage());
     }
 }

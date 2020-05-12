@@ -1,8 +1,8 @@
 package io.github.theepicblock.discordunban;
 
 import github.scarsz.discordsrv.DiscordSRV;
-import github.scarsz.discordsrv.dependencies.jda.api.entities.Message;
-import github.scarsz.discordsrv.dependencies.jda.api.entities.Role;
+import github.scarsz.discordsrv.dependencies.jda.api.entities.*;
+import github.scarsz.discordsrv.util.DiscordUtil;
 import io.github.theepicblock.discordunban.banmanagement.BanManager;
 import io.github.theepicblock.discordunban.banmanagement.DKBansBanManager;
 import io.github.theepicblock.discordunban.banmanagement.VanillaBanManager;
@@ -17,11 +17,18 @@ import java.util.UUID;
 public class DiscordUnban extends JavaPlugin {
     private DiscordEventProcessor discordEventProcessor;
     private BanManager banManager;
+    private BanRequestManager requestManager;
+    private MessageProcessor messageProcessor;
 
     private List<String> enabledChannels;
-    private String command;
+    private String unbanCommand;
+    private String infoCommand;
     private String roleId;
     private Role role;
+    private String dateFormat;
+    private boolean showInfoAfterUnban;
+    private boolean requireConfirmation;
+
 
     @Override
     public void onEnable() {
@@ -30,10 +37,19 @@ public class DiscordUnban extends JavaPlugin {
         FileConfiguration config = this.getConfig();
 
         enabledChannels = config.getStringList("EnabledChannels");
-        command = config.getString("Command") + ' ';
+        unbanCommand = config.getString("UnbanCommand") + ' ';
+        infoCommand = config.getString("InfoCommand") + ' ';
         roleId = config.getString("Role");
-        discordEventProcessor = new DiscordEventProcessor(this);
+        dateFormat = config.getString("DateFormat");
+        showInfoAfterUnban = config.getBoolean("ShowInfoAfterUnban");
+        requireConfirmation = config.getBoolean("RequireConfirmation");
 
+        //load processors
+        messageProcessor = new MessageProcessor(this, enabledChannels, unbanCommand, infoCommand, roleId, dateFormat,showInfoAfterUnban,requireConfirmation);
+        discordEventProcessor = new DiscordEventProcessor(messageProcessor);
+        requestManager = new BanRequestManager(this);
+
+        //get correct banmanager depending on enabled plugins
         if (getServer().getPluginManager().getPlugin("DKBans")!=null){  //dkbans is installed
             getLogger().info("Enabled DKBans integration");
             banManager = new DKBansBanManager();
@@ -41,6 +57,7 @@ public class DiscordUnban extends JavaPlugin {
             banManager = new VanillaBanManager(this);
         }
 
+        //subscribe to discord events
         DiscordSRV.api.subscribe(discordEventProcessor);
     }
 
@@ -48,61 +65,7 @@ public class DiscordUnban extends JavaPlugin {
         return banManager;
     }
 
-    public boolean checkForCommand(Message msg) {
-        if (role == null) {
-            role = DiscordSRV.getPlugin().getJda().getRoleById(roleId); //the role hasn't been initialized yet
-        }
 
-        //series of checks to perform if the message is valid
-        if (!enabledChannels.contains(msg.getChannel().getId())) {
-            return false; //the message isn't in the right channel. Since it isn't in the enabledChannels list
-        }
-        if (!msg.getContentRaw().startsWith(command)) {
-            return false; //the message doesn't start with the command
-        }
-        if (!msg.getGuild().getMember(msg.getAuthor()).getRoles().contains(role)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Strips the command from the beginning. Eg: "!unban test" -> "test"
-     * @param string string to strip
-     * @return stripped string
-     */
-    public String stripCommand(String string){
-        if (string.length() < command.length()) {
-            return null;
-        }
-        return string.substring(command.length());
-    }
-
-    public OfflinePlayer getPlayerFromTargetted(String Message) {
-        if (Message == "") {
-            return null;
-        }
-
-        switch (Message.charAt(0)) {
-            case '<':
-                //This is a discord mention
-                try {
-                    String id = Message.substring(3,Message.length()-1); //  "<@!1234>" -> "1234"
-                    UUID playerId = DiscordSRV.getPlugin().getAccountLinkManager().getUuid(id);
-                    return  Bukkit.getOfflinePlayer(playerId);
-                } catch (Exception e) {
-                    return null;
-                }
-            default:
-                //this is probably a playername
-                OfflinePlayer player = Bukkit.getOfflinePlayer(Message);
-                if (!player.hasPlayedBefore()) { //this is most likely an invalid name
-                    return null;
-                }
-                return player;
-        }
-    }
 
     @Override
     public void onDisable() {

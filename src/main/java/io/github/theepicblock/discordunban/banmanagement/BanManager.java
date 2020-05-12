@@ -1,5 +1,6 @@
 package io.github.theepicblock.discordunban.banmanagement;
 
+import github.scarsz.discordsrv.dependencies.jda.api.entities.MessageEmbed;
 import org.bukkit.OfflinePlayer;
 
 import java.util.UUID;
@@ -13,4 +14,6 @@ public abstract class BanManager {
     public abstract void unban(OfflinePlayer player, UUID staffmember);
 
     public abstract boolean isBanned(OfflinePlayer player);
+
+    public abstract MessageEmbed getBanReason(OfflinePlayer player, String dateFormat);
 }
