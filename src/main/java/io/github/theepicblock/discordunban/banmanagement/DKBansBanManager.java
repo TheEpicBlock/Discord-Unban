@@ -20,7 +20,7 @@ public class DKBansBanManager extends BanManager{
         return networkPlayer.isBanned();
     }
 
-    public MessageEmbed getBanReason(OfflinePlayer player, String dateFormat) {
+    public MessageEmbed getBanInfo(OfflinePlayer player, String dateFormat) {
         return null;
     }
 }

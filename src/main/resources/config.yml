@@ -1,6 +1,6 @@
 EnabledChannels:
-    -693207926692642826
-    -707248041928949891
+    -'693207926692642826'
+    -'707248041928949891'
 UnbanCommand: "!unban"
 InfoCommand: "!baninfo"
 ShowInfoAfterUnban: true

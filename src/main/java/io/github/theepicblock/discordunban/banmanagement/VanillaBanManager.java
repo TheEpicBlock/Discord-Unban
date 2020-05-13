@@ -26,9 +26,17 @@ public class VanillaBanManager extends BanManager{
         return player.isBanned();
     }
 
-    public MessageEmbed getBanReason(OfflinePlayer player, String dateFormat) {
+    public MessageEmbed getBanInfo(OfflinePlayer player, String dateFormat) {
         BanEntry banEntry = plugin.getServer().getBanList(BanList.Type.NAME).getBanEntry(player.getName());
         SimpleDateFormat format = new SimpleDateFormat(dateFormat);
+
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+
+        if (!this.isBanned(player)) {
+            //this player isn't banned, so we can't get any info
+            embedBuilder.appendDescription(player.getName() + " is not currently banned");
+            return embedBuilder.build();
+        }
 
         //get expiration date
         Date expirationDate = banEntry.getExpiration();
@@ -39,7 +47,6 @@ public class VanillaBanManager extends BanManager{
             expiration = "on " + format.format(banEntry.getExpiration());
         }
 
-        EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.addField("by",banEntry.getSource(),true);
         embedBuilder.addField("on",format.format(banEntry.getCreated()),true);
         embedBuilder.addField("ends",expiration, true);

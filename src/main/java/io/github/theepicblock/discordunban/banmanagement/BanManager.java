@@ -15,5 +15,5 @@ public abstract class BanManager {
 
     public abstract boolean isBanned(OfflinePlayer player);
 
-    public abstract MessageEmbed getBanReason(OfflinePlayer player, String dateFormat);
+    public abstract MessageEmbed getBanInfo(OfflinePlayer player, String dateFormat);
 }
