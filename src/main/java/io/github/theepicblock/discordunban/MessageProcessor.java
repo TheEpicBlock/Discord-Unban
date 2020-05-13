@@ -7,6 +7,8 @@ import github.scarsz.discordsrv.util.DiscordUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,7 +19,7 @@ public class MessageProcessor {
     private String unbanCommand;
     private String infoCommand;
     private String roleId;
-    private String dateFormat;
+    private DateFormat dateFormat;
     private boolean showInfoAfterUnban;
     private boolean requireConfirmation;
 
@@ -29,7 +31,7 @@ public class MessageProcessor {
         this.unbanCommand = unbanCommand;
         this.infoCommand = infoCommand;
         this.roleId = roleId;
-        this.dateFormat = dateFormat;
+        this.dateFormat = new SimpleDateFormat(dateFormat);
         this.showInfoAfterUnban = showInfoAfterUnban;
         this.requireConfirmation = requireConfirmation;
     }

@@ -3,6 +3,7 @@ package io.github.theepicblock.discordunban.banmanagement;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.MessageEmbed;
 import org.bukkit.OfflinePlayer;
 
+import java.text.DateFormat;
 import java.util.UUID;
 
 public abstract class BanManager {
@@ -15,5 +16,5 @@ public abstract class BanManager {
 
     public abstract boolean isBanned(OfflinePlayer player);
 
-    public abstract MessageEmbed getBanInfo(OfflinePlayer player, String dateFormat);
+    public abstract MessageEmbed getBanInfo(OfflinePlayer player, DateFormat dateFormat);
 }

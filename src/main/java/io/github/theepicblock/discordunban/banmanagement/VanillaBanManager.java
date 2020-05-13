@@ -7,6 +7,7 @@ import org.bukkit.BanList;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -26,9 +27,8 @@ public class VanillaBanManager extends BanManager{
         return player.isBanned();
     }
 
-    public MessageEmbed getBanInfo(OfflinePlayer player, String dateFormat) {
+    public MessageEmbed getBanInfo(OfflinePlayer player, DateFormat dateFormat) {
         BanEntry banEntry = plugin.getServer().getBanList(BanList.Type.NAME).getBanEntry(player.getName());
-        SimpleDateFormat format = new SimpleDateFormat(dateFormat);
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
 
@@ -44,11 +44,11 @@ public class VanillaBanManager extends BanManager{
         if (expirationDate == null) {
             expiration = "never";
         } else {
-            expiration = "on " + format.format(banEntry.getExpiration());
+            expiration = "on " + dateFormat.format(banEntry.getExpiration());
         }
 
         embedBuilder.addField("by",banEntry.getSource(),true);
-        embedBuilder.addField("on",format.format(banEntry.getCreated()),true);
+        embedBuilder.addField("on",dateFormat.format(banEntry.getCreated()),true);
         embedBuilder.addField("ends",expiration, true);
         embedBuilder.addField("reason",banEntry.getReason(), false);
 
