@@ -17,7 +17,6 @@ import java.util.UUID;
 public class DiscordUnban extends JavaPlugin {
     private DiscordEventProcessor discordEventProcessor;
     private BanManager banManager;
-    private BanRequestManager requestManager;
     private MessageProcessor messageProcessor;
 
     private List<String> enabledChannels;
@@ -36,21 +35,12 @@ public class DiscordUnban extends JavaPlugin {
         this.saveDefaultConfig();
         FileConfiguration config = this.getConfig();
 
-        enabledChannels = config.getStringList("EnabledChannels");
-        unbanCommand = config.getString("UnbanCommand") + ' ';
-        infoCommand = config.getString("InfoCommand") + ' ';
-        roleId = config.getString("Role");
-        dateFormat = config.getString("DateFormat");
-        showInfoAfterUnban = config.getBoolean("ShowInfoAfterUnban");
-        requireConfirmation = config.getBoolean("RequireConfirmation");
-
         //load processors
-        messageProcessor = new MessageProcessor(this, enabledChannels, unbanCommand, infoCommand, roleId, dateFormat,showInfoAfterUnban,requireConfirmation);
+        messageProcessor = new MessageProcessor(this, config);
         discordEventProcessor = new DiscordEventProcessor(messageProcessor);
-        requestManager = new BanRequestManager(this);
 
         //get correct banmanager depending on enabled plugins
-        if (getServer().getPluginManager().getPlugin("DKBans")!=null){  //dkbans is installed
+        if (getServer().getPluginManager().getPlugin("DKBans") != null) {  //dkbans is installed
             getLogger().info("Enabled DKBans integration");
             banManager = new DKBansBanManager();
         } else {
@@ -61,14 +51,12 @@ public class DiscordUnban extends JavaPlugin {
         DiscordSRV.api.subscribe(discordEventProcessor);
     }
 
-    public BanManager getBanManager() {
-        return banManager;
-    }
-
-
-
     @Override
     public void onDisable() {
         DiscordSRV.api.unsubscribe(discordEventProcessor);
+    }
+
+    public BanManager getBanManager() {
+        return banManager;
     }
 }

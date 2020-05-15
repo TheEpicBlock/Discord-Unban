@@ -4,6 +4,7 @@ import github.scarsz.discordsrv.dependencies.jda.api.EmbedBuilder;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.MessageEmbed;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -20,7 +21,9 @@ public class VanillaBanManager extends BanManager{
     }
 
     public void unban(OfflinePlayer player, UUID staffmember) {
-        plugin.getServer().getBanList(BanList.Type.NAME).pardon(player.getName());
+        Bukkit.getScheduler().runTask(plugin,() -> { //this is a bukkit api thing. So I should run it on the main thread to be safe
+            plugin.getServer().getBanList(BanList.Type.NAME).pardon(player.getName());
+        });
     }
 
     public boolean isBanned(OfflinePlayer player) {
@@ -32,8 +35,7 @@ public class VanillaBanManager extends BanManager{
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
 
-        if (!this.isBanned(player)) {
-            //this player isn't banned, so we can't get any info
+        if (!this.isBanned(player)) { //this player isn't banned, so we can't get any info
             embedBuilder.appendDescription(player.getName() + " is not currently banned");
             return embedBuilder.build();
         }
@@ -47,6 +49,7 @@ public class VanillaBanManager extends BanManager{
             expiration = "on " + dateFormat.format(banEntry.getExpiration());
         }
 
+        //add fields to embed
         embedBuilder.addField("by",banEntry.getSource(),true);
         embedBuilder.addField("on",dateFormat.format(banEntry.getCreated()),true);
         embedBuilder.addField("ends",expiration, true);

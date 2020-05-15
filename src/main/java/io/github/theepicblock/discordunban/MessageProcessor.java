@@ -6,6 +6,7 @@ import github.scarsz.discordsrv.dependencies.jda.api.entities.Message;
 import github.scarsz.discordsrv.util.DiscordUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -13,27 +14,26 @@ import java.util.List;
 import java.util.UUID;
 
 public class MessageProcessor {
-    private DiscordUnban plugin;
+    private final DiscordUnban plugin;
 
-    private List<String> enabledChannels;
-    private String unbanCommand;
-    private String infoCommand;
-    private String roleId;
-    private DateFormat dateFormat;
-    private boolean showInfoAfterUnban;
-    private boolean requireConfirmation;
+    private final List<String> enabledChannels;
+    private final String unbanCommand;
+    private final String infoCommand;
+    private final String roleId;
+    private final DateFormat dateFormat;
+    private final boolean showInfoAfterUnban;
+    private final boolean requireConfirmation;
 
 
-    public MessageProcessor(DiscordUnban plugin, List<String> enabledChannels, String unbanCommand, String infoCommand,
-                            String roleId, String dateFormat, boolean showInfoAfterUnban, boolean requireConfirmation) {
+    public MessageProcessor(DiscordUnban plugin, FileConfiguration config) {
         this.plugin = plugin;
-        this.enabledChannels = enabledChannels;
-        this.unbanCommand = unbanCommand;
-        this.infoCommand = infoCommand;
-        this.roleId = roleId;
-        this.dateFormat = new SimpleDateFormat(dateFormat);
-        this.showInfoAfterUnban = showInfoAfterUnban;
-        this.requireConfirmation = requireConfirmation;
+        enabledChannels = config.getStringList("EnabledChannels");
+        unbanCommand = config.getString("UnbanCommand") + ' ';
+        infoCommand = config.getString("InfoCommand") + ' ';
+        roleId = config.getString("Role");
+        dateFormat = new SimpleDateFormat(config.getString("DateFormat"));
+        showInfoAfterUnban = config.getBoolean("ShowInfoAfterUnban");
+        requireConfirmation = config.getBoolean("RequireConfirmation");
     }
 
     public void process(Message msg) {
