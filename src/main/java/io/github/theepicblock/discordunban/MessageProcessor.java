@@ -113,7 +113,7 @@ public class MessageProcessor {
         //reply with the info
         MessageBuilder messageBuilder = new MessageBuilder();
 
-        String message = String.format("%s, info for %s",
+        String message = String.format("%s, info for '%s'",
                 msg.getAuthor(),
                 requestedPlayer.getName());
 
