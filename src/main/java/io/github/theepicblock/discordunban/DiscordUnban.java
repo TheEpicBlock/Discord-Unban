@@ -19,21 +19,16 @@ public class DiscordUnban extends JavaPlugin {
     private BanManager banManager;
     private MessageProcessor messageProcessor;
 
-    private List<String> enabledChannels;
-    private String unbanCommand;
-    private String infoCommand;
-    private String roleId;
-    private Role role;
-    private String dateFormat;
-    private boolean showInfoAfterUnban;
-    private boolean requireConfirmation;
-
+    private boolean debug;
 
     @Override
     public void onEnable() {
         //load config
         this.saveDefaultConfig();
         FileConfiguration config = this.getConfig();
+
+        debug = config.getBoolean("Debug");
+        debugLog("Debug logs are enabled");
 
         //load processors
         messageProcessor = new MessageProcessor(this, config);
@@ -49,6 +44,12 @@ public class DiscordUnban extends JavaPlugin {
 
         //subscribe to discord events
         DiscordSRV.api.subscribe(discordEventProcessor);
+    }
+
+    public void debugLog (String message) {
+        if (debug) {
+            getLogger().info(message + " [Debug]");
+        }
     }
 
     @Override

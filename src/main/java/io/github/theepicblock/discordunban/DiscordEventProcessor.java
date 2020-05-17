@@ -9,6 +9,9 @@ import org.bukkit.OfflinePlayer;
 
 import java.util.UUID;
 
+/**
+ * Listens for discord events
+ */
 public class DiscordEventProcessor {
     MessageProcessor messageProcessor;
 

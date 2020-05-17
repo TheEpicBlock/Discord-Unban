@@ -13,6 +13,9 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * processes messages from discord
+ */
 public class MessageProcessor {
     private final DiscordUnban plugin;
 
@@ -43,6 +46,8 @@ public class MessageProcessor {
             } else if (msg.getContentRaw().startsWith(infoCommand)) {
                 processInfo(msg);
             }
+        } else {
+            plugin.debugLog("a message was sent in a channel that isn't enabled: " + msg.getId());
         }
     }
 

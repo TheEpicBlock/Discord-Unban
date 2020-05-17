@@ -7,3 +7,4 @@ InfoCommand: "!baninfo"         #command to look up ban info
 ShowInfoAfterUnban: true        #shows a persons baninfo after you've unbanned them. Usefull in combination with RequireConfirmation
 RequireConfirmation: false      #not implemented yet
 DateFormat: "HH:mm dd-MM-yyyy"  #format used by this plugin. see https://docs.oracle.com/javase/10/docs/api/java/text/SimpleDateFormat.html
+Debug: false                    #if true, console will be spammed with debug info
