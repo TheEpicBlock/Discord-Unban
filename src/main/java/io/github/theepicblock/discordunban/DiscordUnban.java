@@ -1,6 +1,7 @@
 package io.github.theepicblock.discordunban;
 
 import github.scarsz.discordsrv.DiscordSRV;
+import github.scarsz.discordsrv.dependencies.jda.api.JDA;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.*;
 import github.scarsz.discordsrv.util.DiscordUtil;
 import io.github.theepicblock.discordunban.banmanagement.BanManager;
@@ -10,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,6 +20,7 @@ public class DiscordUnban extends JavaPlugin {
     private DiscordEventProcessor discordEventProcessor;
     private BanManager banManager;
     private MessageProcessor messageProcessor;
+    private ConfirmManager confirmManager;
 
     private boolean debug;
 
@@ -31,7 +34,8 @@ public class DiscordUnban extends JavaPlugin {
         debugLog("Debug logs are enabled");
 
         //load processors
-        messageProcessor = new MessageProcessor(this, config);
+        if (config.getBoolean("RequireConfirmation")) confirmManager = new ConfirmManager(this);
+        messageProcessor = new MessageProcessor(this, config, confirmManager);
         discordEventProcessor = new DiscordEventProcessor(messageProcessor);
 
         //get correct banmanager depending on enabled plugins
@@ -48,7 +52,7 @@ public class DiscordUnban extends JavaPlugin {
 
     public void debugLog (String message) {
         if (debug) {
-            getLogger().info(message + " [Debug]");
+            getLogger().info("[debug] "+message);
         }
     }
 
@@ -60,4 +64,5 @@ public class DiscordUnban extends JavaPlugin {
     public BanManager getBanManager() {
         return banManager;
     }
+
 }

@@ -12,6 +12,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * processes messages from discord
@@ -26,10 +27,14 @@ public class MessageProcessor {
     private final DateFormat dateFormat;
     private final boolean showInfoAfterUnban;
     private final boolean requireConfirmation;
+    private ConfirmManager confirmManager;
 
 
-    public MessageProcessor(DiscordUnban plugin, FileConfiguration config) {
+    public MessageProcessor(DiscordUnban plugin, FileConfiguration config, ConfirmManager confirmManager) {
         this.plugin = plugin;
+        this.confirmManager = confirmManager;
+
+        //import config
         enabledChannels = config.getStringList("EnabledChannels");
         unbanCommand = config.getString("UnbanCommand") + ' ';
         infoCommand = config.getString("InfoCommand") + ' ';
@@ -37,6 +42,13 @@ public class MessageProcessor {
         dateFormat = new SimpleDateFormat(config.getString("DateFormat"));
         showInfoAfterUnban = config.getBoolean("ShowInfoAfterUnban");
         requireConfirmation = config.getBoolean("RequireConfirmation");
+
+        //debug info
+        if (enabledChannels.size() > 0) {
+            enabledChannels.forEach((channel) -> plugin.debugLog("'"+channel+"' is enabled"));
+        } else {
+            plugin.getLogger().warning("no channels enabled");
+        }
     }
 
     public void process(Message msg) {
@@ -47,54 +59,60 @@ public class MessageProcessor {
                 processInfo(msg);
             }
         } else {
-            plugin.debugLog("a message was sent in a channel that isn't enabled: " + msg.getId());
+            plugin.debugLog("a message was sent in a channel that isn't enabled: " + msg.getChannel().getId());
         }
     }
 
     private void processUnban(Message msg) {
         DiscordUtil.deleteMessage(msg);
 
-        if (!DiscordUnbanUtils.checkForPerms(msg,roleId)) {
+        if (!DiscordUnbanUtils.checkForPerms(msg,roleId)) { //check perms
             sendReply(msg, String.format("%s, you don't have the perms to unban", msg.getAuthor()));
             return;
         }
 
+        //get player requested
         String playerStr = DiscordUnbanUtils.stripString(msg.getContentRaw(),unbanCommand);
         OfflinePlayer requestedPlayer = DiscordUnbanUtils.getPlayerFromTargetted(playerStr);
-
         if (requestedPlayer == null) {
             sendReply(msg, String.format("%s, couldn't find '%s'", msg.getAuthor(), playerStr));
             return;
         }
 
-        if (!plugin.getBanManager().isBanned(requestedPlayer)) {
+        if (!plugin.getBanManager().isBanned(requestedPlayer)) { //you can't unban someone who isn't banned
             sendReply(msg, String.format("'%s' is not banned, %s", requestedPlayer.getName(), msg.getAuthor()));
             return;
         }
 
-        UUID requesterID = DiscordSRV.getPlugin().getAccountLinkManager().getUuid(msg.getAuthor().getId());
+        UUID requesterID = DiscordSRV.getPlugin().getAccountLinkManager().getUuid(msg.getAuthor().getId()); //get the person who is trying to unban someone
         if (requesterID == null) {
             sendReply(msg, String.format("%s, your account is not linked with a mc account", msg.getAuthor()));
             return;
         }
         OfflinePlayer requester = Bukkit.getOfflinePlayer(requesterID);
 
-        //reply
+        //reply and take action //////////////////////////////////////////////////////
         MessageBuilder messageBuilder = new MessageBuilder();
-
-        if (requireConfirmation) {
-            messageBuilder.append(String.format("%s, do you want to unban %s?", msg.getAuthor(), requestedPlayer.getName()));
-        } else {
-            messageBuilder.append(String.format("'%s' was unbanned by %s", requestedPlayer.getName(), msg.getAuthor()));
-        }
 
         if (showInfoAfterUnban) {
             messageBuilder.setEmbed(plugin.getBanManager().getBanInfo(requestedPlayer,dateFormat));
         }
-        sendReply(msg,messageBuilder.build());
+
+        if (requireConfirmation) {
+            messageBuilder.append(String.format("%s, do you want to unban %s?", msg.getAuthor(), requestedPlayer.getName()));
+            sendReply(msg, messageBuilder.build(), (message) -> {
+                confirmManager.addMessageToConfirmQueue(message, requestedPlayer, requesterID);
+            });
+        } else {
+            messageBuilder.append(String.format("'%s' was unbanned by %s", requestedPlayer.getName(), msg.getAuthor()));
+            plugin.getBanManager().unban(requestedPlayer,requesterID); //directly unban the person
+            sendReply(msg,messageBuilder.build());
+        }
 
         //unban logic
-        if (!requireConfirmation) {
+        if (requireConfirmation) {
+            plugin.debugLog(msg.getId());
+        } else {
             plugin.getBanManager().unban(requestedPlayer,requesterID); //we don't need confirmation, we'll just unban the guy
         }
     }
@@ -134,5 +152,9 @@ public class MessageProcessor {
 
     private void sendReply(Message replyMessage, Message message) {
         DiscordUtil.queueMessage(replyMessage.getTextChannel(),message);
+    }
+
+    private void sendReply(Message replyMessage, Message message, Consumer<Message> consumer) {
+        DiscordUtil.queueMessage(replyMessage.getTextChannel(),message,consumer);
     }
 }
