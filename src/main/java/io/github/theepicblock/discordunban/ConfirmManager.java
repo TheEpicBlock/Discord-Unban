@@ -11,23 +11,35 @@ import javax.annotation.Nonnull;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Manages pending unbans. Listens to reactions
+ */
 public class ConfirmManager {
     final String CANCEL = "U+274c";
     final String ACCEPT = "U+2705";
+    final String ROLEID;
     DiscordUnban plugin;
     ConcurrentHashMap<Long, UnbanAttempt> unbanAttempts = new ConcurrentHashMap<>();
 
-    public ConfirmManager(DiscordUnban plugin) {
+    public ConfirmManager(DiscordUnban plugin, String roleid) {
         this.plugin = plugin;
+        ROLEID = roleid;
         initReactionListener();
     }
 
     public void processReaction(@Nonnull MessageReactionAddEvent event) {
         plugin.debugLog("Received reaction: " + event.getReaction().getReactionEmote().getAsCodepoints());
-        if (event.getUser() == null || event.getUser().isBot()) return; //prevent the bot from confirming things.
+        if (event.getUser() == null || event.getUser().isBot()) return; //prevent the bot's own reactions from interfering.
 
         UnbanAttempt unbanAttempt = unbanAttempts.get(event.getMessageIdLong());
-        if (unbanAttempt != null) {
+        if (unbanAttempt != null) { //check if this reaction is on a pending unban message
+            if (!DiscordUnbanUtils.checkForPerms(event.getMember(), ROLEID)) {
+                //they don't have the perms to confirm an unban.
+                event.getReaction().removeReaction().queue();
+                return;
+            }
+
+            //see what emoji they've reacted with
             switch (event.getReaction().getReactionEmote().getAsCodepoints()) {
                 case ACCEPT:
                     plugin.getBanManager().unban(unbanAttempt.requestedPlayer, unbanAttempt.requesterId);

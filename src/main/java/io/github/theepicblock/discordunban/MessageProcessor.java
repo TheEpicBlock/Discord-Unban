@@ -15,7 +15,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
- * processes messages from discord
+ * manages incoming messages and what happens with them
  */
 public class MessageProcessor {
     private final DiscordUnban plugin;
@@ -51,6 +51,10 @@ public class MessageProcessor {
         }
     }
 
+    /**
+     * processes a discord message
+     * @param msg message to process
+     */
     public void process(Message msg) {
         if (DiscordUnbanUtils.checkChannel(msg, enabledChannels)) {
             if (msg.getContentRaw().startsWith(unbanCommand)) {
@@ -63,6 +67,10 @@ public class MessageProcessor {
         }
     }
 
+    /**
+     * processes an unban command
+     * @param msg message to process
+     */
     private void processUnban(Message msg) {
         DiscordUtil.deleteMessage(msg);
 
@@ -89,7 +97,6 @@ public class MessageProcessor {
             sendReply(msg, String.format("%s, your account is not linked with a mc account", msg.getAuthor()));
             return;
         }
-        OfflinePlayer requester = Bukkit.getOfflinePlayer(requesterID);
 
         //reply and take action //////////////////////////////////////////////////////
         MessageBuilder messageBuilder = new MessageBuilder();
@@ -115,6 +122,10 @@ public class MessageProcessor {
         }
     }
 
+    /**
+     * processes an info command
+     * @param msg message to process
+     */
     private void processInfo(Message msg) {
         DiscordUtil.deleteMessage(msg);
 

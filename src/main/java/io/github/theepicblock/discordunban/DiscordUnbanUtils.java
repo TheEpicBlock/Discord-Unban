@@ -94,23 +94,21 @@ public class DiscordUnbanUtils {
             return null;
         }
 
-        switch (Message.charAt(0)) {
-            case '<':
-                //This is a discord mention
-                try {
-                    String id = Message.substring(3, Message.length() - 1); // converts "<@!1234>" to "1234"
-                    UUID playerId = DiscordSRV.getPlugin().getAccountLinkManager().getUuid(id);
-                    return Bukkit.getOfflinePlayer(playerId);
-                } catch (Exception e) {
-                    return null;
-                }
-            default:
-                //this is probably a playername
-                OfflinePlayer player = Bukkit.getOfflinePlayer(Message);
-                if (!player.hasPlayedBefore()) { //this is most likely an invalid name
-                    return null;
-                }
-                return player;
+        if (Message.charAt(0) == '<') {//This is a discord mention
+            try {
+                String id = Message.substring(3, Message.length() - 1); // converts "<@!1234>" to "1234"
+                UUID playerId = DiscordSRV.getPlugin().getAccountLinkManager().getUuid(id);
+                return Bukkit.getOfflinePlayer(playerId);
+            } catch (Exception e) {
+                return null;
+            }
         }
+
+        //this is probably a playername
+        OfflinePlayer player = Bukkit.getOfflinePlayer(Message);
+        if (!player.hasPlayedBefore()) { //this is most likely an invalid name
+            return null;
+        }
+        return player;
     }
 }

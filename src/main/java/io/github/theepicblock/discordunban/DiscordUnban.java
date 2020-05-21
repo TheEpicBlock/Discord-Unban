@@ -25,7 +25,7 @@ public class DiscordUnban extends JavaPlugin {
         debugLog("Debug logs are enabled");
 
         //load processors
-        if (config.getBoolean("RequireConfirmation")) confirmManager = new ConfirmManager(this);
+        if (config.getBoolean("RequireConfirmation")) confirmManager = new ConfirmManager(this, config.getString("Role"));
         messageProcessor = new MessageProcessor(this, config, confirmManager);
         discordEventProcessor = new DiscordEventProcessor(messageProcessor);
 
