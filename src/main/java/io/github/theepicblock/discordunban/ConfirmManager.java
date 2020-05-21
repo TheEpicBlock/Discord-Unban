@@ -35,7 +35,7 @@ public class ConfirmManager {
         if (unbanAttempt != null) { //check if this reaction is on a pending unban message
             if (!DiscordUnbanUtils.checkForPerms(event.getMember(), ROLEID)) {
                 //they don't have the perms to confirm an unban.
-                event.getReaction().removeReaction().queue();
+                event.getReaction().removeReaction(event.getUser()).queue();
                 return;
             }
 
@@ -51,7 +51,7 @@ public class ConfirmManager {
                     cleanUpMessage(event, String.format("'%s' his unban was cancelled by %s", unbanAttempt.requestedPlayer.getName(), event.getUser()));
                     break;
                 default:
-                    event.getReaction().removeReaction().queue();
+                    event.getReaction().removeReaction(event.getUser()).queue();
             }
         }
     }

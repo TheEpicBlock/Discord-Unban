@@ -4,7 +4,7 @@ EnabledChannels:                #channels where you can use this plugin's comman
 Role: "707310286251622492"      #role needed to use commands
 UnbanCommand: "!unban"          #command to unban people
 InfoCommand: "!baninfo"         #command to look up ban info
-ShowInfoAfterUnban: true        #shows a persons baninfo after you've unbanned them. Usefull in combination with RequireConfirmation
+ShowInfoAfterUnban: false        #shows a persons baninfo after you've unbanned them. Useful in combination with RequireConfirmation
 RequireConfirmation: false      #requires a reaction to confirm the unban
 DateFormat: "HH:mm dd-MM-yyyy"  #format used by this plugin. see https://docs.oracle.com/javase/10/docs/api/java/text/SimpleDateFormat.html
 Debug: false                    #if true, console will be spammed with debug info
