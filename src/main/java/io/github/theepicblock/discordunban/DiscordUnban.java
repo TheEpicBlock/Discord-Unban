@@ -1,20 +1,11 @@
 package io.github.theepicblock.discordunban;
 
 import github.scarsz.discordsrv.DiscordSRV;
-import github.scarsz.discordsrv.dependencies.jda.api.JDA;
-import github.scarsz.discordsrv.dependencies.jda.api.entities.*;
-import github.scarsz.discordsrv.util.DiscordUtil;
 import io.github.theepicblock.discordunban.banmanagement.BanManager;
 import io.github.theepicblock.discordunban.banmanagement.DKBansBanManager;
 import io.github.theepicblock.discordunban.banmanagement.VanillaBanManager;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.List;
-import java.util.UUID;
 
 public class DiscordUnban extends JavaPlugin {
     private DiscordEventProcessor discordEventProcessor;
@@ -50,9 +41,9 @@ public class DiscordUnban extends JavaPlugin {
         DiscordSRV.api.subscribe(discordEventProcessor);
     }
 
-    public void debugLog (String message) {
+    public void debugLog(String message) {
         if (debug) {
-            getLogger().info("[debug] "+message);
+            getLogger().info("[debug] " + message);
         }
     }
 

@@ -9,11 +9,10 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
-public class VanillaBanManager extends BanManager{
+public class VanillaBanManager extends BanManager {
     JavaPlugin plugin;
 
     public VanillaBanManager(JavaPlugin plugin) {
@@ -21,7 +20,7 @@ public class VanillaBanManager extends BanManager{
     }
 
     public void unban(OfflinePlayer player, UUID staffmember) {
-        Bukkit.getScheduler().runTask(plugin,() -> { //this is a bukkit api thing. So I should run it on the main thread to be safe
+        Bukkit.getScheduler().runTask(plugin, () -> { //this is a bukkit api thing. So I should run it on the main thread to be safe
             plugin.getServer().getBanList(BanList.Type.NAME).pardon(player.getName());
         });
     }
@@ -50,10 +49,10 @@ public class VanillaBanManager extends BanManager{
         }
 
         //add fields to embed
-        embedBuilder.addField("by",banEntry.getSource(),true);
-        embedBuilder.addField("on",dateFormat.format(banEntry.getCreated()),true);
-        embedBuilder.addField("ends",expiration, true);
-        embedBuilder.addField("reason",banEntry.getReason(), false);
+        embedBuilder.addField("by", banEntry.getSource(), true);
+        embedBuilder.addField("on", dateFormat.format(banEntry.getCreated()), true);
+        embedBuilder.addField("ends", expiration, true);
+        embedBuilder.addField("reason", banEntry.getReason(), false);
 
         return embedBuilder.build();
     }

@@ -12,11 +12,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConfirmManager {
-    DiscordUnban plugin;
-    ConcurrentHashMap<Long, UnbanAttempt> unbanAttempts = new ConcurrentHashMap<Long, UnbanAttempt>();
-
     final String CANCEL = "U+274c";
     final String ACCEPT = "U+2705";
+    DiscordUnban plugin;
+    ConcurrentHashMap<Long, UnbanAttempt> unbanAttempts = new ConcurrentHashMap<>();
 
     public ConfirmManager(DiscordUnban plugin) {
         this.plugin = plugin;
@@ -25,13 +24,13 @@ public class ConfirmManager {
 
     public void processReaction(@Nonnull MessageReactionAddEvent event) {
         plugin.debugLog("Received reaction: " + event.getReaction().getReactionEmote().getAsCodepoints());
-        if (event.getUser().isBot()) return; //prevent the bot from confirming things.
+        if (event.getUser() == null || event.getUser().isBot()) return; //prevent the bot from confirming things.
 
         UnbanAttempt unbanAttempt = unbanAttempts.get(event.getMessageIdLong());
         if (unbanAttempt != null) {
             switch (event.getReaction().getReactionEmote().getAsCodepoints()) {
                 case ACCEPT:
-                    plugin.getBanManager().unban(unbanAttempt.requestedPlayer,unbanAttempt.requesterId);
+                    plugin.getBanManager().unban(unbanAttempt.requestedPlayer, unbanAttempt.requesterId);
                     unbanAttempts.remove(event.getMessageIdLong());
                     cleanUpMessage(event, String.format("'%s' was unbanned by %s", unbanAttempt.requestedPlayer.getName(), event.getUser()));
                     break;
@@ -40,7 +39,7 @@ public class ConfirmManager {
                     cleanUpMessage(event, String.format("'%s' his unban was cancelled by %s", unbanAttempt.requestedPlayer.getName(), event.getUser()));
                     break;
                 default:
-                    event.getReaction().removeReaction();
+                    event.getReaction().removeReaction().queue();
             }
         }
     }
@@ -48,16 +47,19 @@ public class ConfirmManager {
     public void addMessageToConfirmQueue(Message message, OfflinePlayer requestedPlayer, UUID requesterId) {
         plugin.debugLog("added message '" + message.getId() + "to the confirm queue");
         UnbanAttempt unbanAttempt = new UnbanAttempt(requestedPlayer, requesterId);
-        unbanAttempts.put(message.getIdLong(),unbanAttempt);
+        unbanAttempts.put(message.getIdLong(), unbanAttempt);
 
         message.addReaction(ACCEPT).queue((useless) -> message.addReaction(CANCEL).queue()); //adds the 2 reactions to the message, making sure the ACCEPT reaction comes first
     }
 
     private void cleanUpMessage(MessageReactionAddEvent event, String newMessage) {
-        event.getTextChannel().editMessageById(event.getMessageIdLong(), newMessage).queue();
+        event.getTextChannel().editMessageById(event.getMessageIdLong(), newMessage).queue((msg) -> {
+            msg.clearReactions().queue();
+            //msg.suppressEmbeds(true); not included in the main DiscordSRV yet
+        });
     }
 
-    private void initReactionListener () {
+    private void initReactionListener() {
         new BukkitRunnable() {
             @Override
             public void run() {

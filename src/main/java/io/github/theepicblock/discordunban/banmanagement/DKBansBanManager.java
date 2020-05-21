@@ -10,7 +10,6 @@ import github.scarsz.discordsrv.dependencies.jda.api.EmbedBuilder;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.MessageEmbed;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
-import org.jetbrains.annotations.NotNull;
 
 import java.text.DateFormat;
 import java.util.List;
@@ -63,16 +62,17 @@ public class DKBansBanManager extends BanManager {
 
     /**
      * gets a part of history as a string. Formatted as "(action) - by (staff) on (date), (reason)\n"
-     * @param history history to get the info from
-     * @param start on which entry to start (inclusive)
-     * @param end on which entry to end (exclusive)
+     *
+     * @param history    history to get the info from
+     * @param start      on which entry to start (inclusive)
+     * @param end        on which entry to end (exclusive)
      * @param dateFormat format to use
      */
     private String getBanHistoryList(History history, int start, int end, DateFormat dateFormat) {
         List<HistoryEntry> entries = history.getEntries();
         int end_ = Math.min(end, entries.size());
         StringBuilder output = new StringBuilder();
-        entries = entries.subList(start,end_);
+        entries = entries.subList(start, end_);
         for (HistoryEntry entry : entries) {
             String m = String.format("%s - by %s on %s, %s\n",
                     entry.getTypeName(),
