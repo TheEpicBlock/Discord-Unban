@@ -6,6 +6,7 @@ import ch.dkrieger.bansystem.lib.player.history.BanType;
 import ch.dkrieger.bansystem.lib.player.history.History;
 import ch.dkrieger.bansystem.lib.player.history.entry.Ban;
 import ch.dkrieger.bansystem.lib.player.history.entry.HistoryEntry;
+import com.google.common.collect.Lists;
 import github.scarsz.discordsrv.dependencies.jda.api.EmbedBuilder;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.MessageEmbed;
 import org.bukkit.ChatColor;
@@ -92,7 +93,7 @@ public class DKBansBanManager extends BanManager {
      * @param dateFormat format to use
      */
     private String getBanHistoryList(History history, int start, int end, DateFormat dateFormat) {
-        List<HistoryEntry> entries = history.getEntries();
+        List<HistoryEntry> entries = Lists.reverse(history.getEntries()); //reverse because the list is in reverse chronological order
         int end_ = Math.min(end, entries.size());
         StringBuilder output = new StringBuilder();
         if (start > end_) {
