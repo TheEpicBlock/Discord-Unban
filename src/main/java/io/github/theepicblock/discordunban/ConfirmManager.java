@@ -29,7 +29,8 @@ public class ConfirmManager {
 
     public void processReaction(@Nonnull MessageReactionAddEvent event) {
         plugin.debugLog("Received reaction: " + event.getReaction().getReactionEmote().getAsCodepoints());
-        if (event.getUser() == null || event.getUser().isBot()) return; //prevent the bot's own reactions from interfering.
+        if (event.getUser() == null || event.getUser().isBot())
+            return; //prevent the bot's own reactions from interfering.
 
         UnbanAttempt unbanAttempt = unbanAttempts.get(event.getMessageIdLong());
         if (unbanAttempt != null) { //check if this reaction is on a pending unban message

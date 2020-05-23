@@ -85,6 +85,11 @@ public class DiscordUnbanUtils {
         return string.substring(strip.length());
     }
 
+    public static String[] getArgsFromCommand(String message, String command) {
+        String args = stripString(message, command);
+        return args.split(" ");
+    }
+
     /**
      * @param Message message to parse. Eg "<@!123456>" or "Notch"
      * @return the offline player matching the string

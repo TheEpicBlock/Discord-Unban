@@ -3,6 +3,7 @@ package io.github.theepicblock.discordunban.banmanagement;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.MessageEmbed;
 import org.bukkit.OfflinePlayer;
 
+import javax.annotation.Nullable;
 import java.text.DateFormat;
 import java.util.UUID;
 
@@ -28,7 +29,8 @@ public abstract class BanManager {
      *
      * @param player     player to get info from
      * @param dateFormat format to use for any dates
+     * @param args       argument passed through from the command. This may affect the output in any way.
      * @return an embed representing the info
      */
-    public abstract MessageEmbed getBanInfo(OfflinePlayer player, DateFormat dateFormat);
+    public abstract MessageEmbed getBanInfo(OfflinePlayer player, DateFormat dateFormat, @Nullable String[] args);
 }

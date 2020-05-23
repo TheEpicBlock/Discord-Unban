@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.annotation.Nullable;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -29,7 +30,7 @@ public class VanillaBanManager extends BanManager {
         return player.isBanned();
     }
 
-    public MessageEmbed getBanInfo(OfflinePlayer player, DateFormat dateFormat) {
+    public MessageEmbed getBanInfo(OfflinePlayer player, DateFormat dateFormat, @Nullable String[] args) {
         BanEntry banEntry = plugin.getServer().getBanList(BanList.Type.NAME).getBanEntry(player.getName());
 
         EmbedBuilder embedBuilder = new EmbedBuilder();

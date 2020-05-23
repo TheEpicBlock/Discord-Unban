@@ -11,6 +11,7 @@ import github.scarsz.discordsrv.dependencies.jda.api.entities.MessageEmbed;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 
+import javax.annotation.Nullable;
 import java.text.DateFormat;
 import java.util.List;
 import java.util.UUID;
@@ -27,7 +28,17 @@ public class DKBansBanManager extends BanManager {
         return networkPlayer.isBanned();
     }
 
-    public MessageEmbed getBanInfo(OfflinePlayer player, DateFormat dateFormat) {
+    public MessageEmbed getBanInfo(OfflinePlayer player, DateFormat dateFormat, @Nullable String[] args) {
+        if (args == null) return noArgs(player, dateFormat);
+        try {
+            int page = Integer.parseInt(args[0]);
+            return getEmbedForPage(player, dateFormat, page);
+        } catch (NumberFormatException e) { //this isn't a valid number, ignore it
+            return noArgs(player, dateFormat);
+        }
+    }
+
+    private MessageEmbed noArgs(OfflinePlayer player, DateFormat dateFormat) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         NetworkPlayer networkPlayer = BanSystem.getInstance().getPlayerManager().getPlayer(player.getUniqueId());
 
@@ -60,6 +71,18 @@ public class DKBansBanManager extends BanManager {
         return embedBuilder.build();
     }
 
+    private MessageEmbed getEmbedForPage(OfflinePlayer player, DateFormat dateFormat, int page) {
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+        int entriesPerPage = 10;
+
+        NetworkPlayer networkPlayer = BanSystem.getInstance().getPlayerManager().getPlayer(player.getUniqueId());
+        History history = networkPlayer.getHistory();
+
+        String entries = getBanHistoryList(history, (page - 1) * entriesPerPage, page * entriesPerPage, dateFormat);
+        embedBuilder.addField("Page " + page, entries, false);
+        return embedBuilder.build();
+    }
+
     /**
      * gets a part of history as a string. Formatted as "(action) - by (staff) on (date), (reason)\n"
      *
@@ -72,6 +95,10 @@ public class DKBansBanManager extends BanManager {
         List<HistoryEntry> entries = history.getEntries();
         int end_ = Math.min(end, entries.size());
         StringBuilder output = new StringBuilder();
+        if (start > end_) {
+            return "";
+        }
+
         entries = entries.subList(start, end_);
         for (HistoryEntry entry : entries) {
             String m = String.format("%s - by %s on %s, %s\n",

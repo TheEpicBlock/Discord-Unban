@@ -4,12 +4,12 @@ import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.dependencies.jda.api.MessageBuilder;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.Message;
 import github.scarsz.discordsrv.util.DiscordUtil;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -53,6 +53,7 @@ public class MessageProcessor {
 
     /**
      * processes a discord message
+     *
      * @param msg message to process
      */
     public void process(Message msg) {
@@ -69,6 +70,7 @@ public class MessageProcessor {
 
     /**
      * processes an unban command
+     *
      * @param msg message to process
      */
     private void processUnban(Message msg) {
@@ -79,8 +81,10 @@ public class MessageProcessor {
             return;
         }
 
+        String[] args = DiscordUnbanUtils.getArgsFromCommand(msg.getContentRaw(), unbanCommand);
+
         //get player requested
-        String playerStr = DiscordUnbanUtils.stripString(msg.getContentRaw(), unbanCommand);
+        String playerStr = args[0]; //the player is the first argument, the rest is ignored
         OfflinePlayer requestedPlayer = DiscordUnbanUtils.getPlayerFromTargetted(playerStr);
         if (requestedPlayer == null) {
             sendReply(msg, String.format("%s, couldn't find '%s'", msg.getAuthor(), playerStr));
@@ -102,7 +106,7 @@ public class MessageProcessor {
         MessageBuilder messageBuilder = new MessageBuilder();
 
         if (showInfoAfterUnban) {
-            messageBuilder.setEmbed(plugin.getBanManager().getBanInfo(requestedPlayer, dateFormat));
+            messageBuilder.setEmbed(plugin.getBanManager().getBanInfo(requestedPlayer, dateFormat, null));
         }
 
         if (requireConfirmation) {
@@ -124,6 +128,7 @@ public class MessageProcessor {
 
     /**
      * processes an info command
+     *
      * @param msg message to process
      */
     private void processInfo(Message msg) {
@@ -134,12 +139,21 @@ public class MessageProcessor {
             return;
         }
 
-        String playerStr = DiscordUnbanUtils.stripString(msg.getContentRaw(), infoCommand);
+        String[] args = DiscordUnbanUtils.getArgsFromCommand(msg.getContentRaw(), infoCommand);
+
+        //get the player
+        String playerStr = args[0]; //player is the first argument
         OfflinePlayer requestedPlayer = DiscordUnbanUtils.getPlayerFromTargetted(playerStr);
 
         if (requestedPlayer == null) {
             sendReply(msg, String.format("%s, couldn't find '%s'", msg.getAuthor(), playerStr));
             return;
+        }
+
+        //get the argument which need to be passed to the getBanInfo command
+        String[] passedArgs = null;
+        if (args.length > 1) {
+            passedArgs = Arrays.copyOfRange(args, 1, args.length); //get all but the first argument
         }
 
         //reply with the info
@@ -150,7 +164,7 @@ public class MessageProcessor {
                 requestedPlayer.getName());
 
         messageBuilder.append(message);
-        messageBuilder.setEmbed(plugin.getBanManager().getBanInfo(requestedPlayer, dateFormat));
+        messageBuilder.setEmbed(plugin.getBanManager().getBanInfo(requestedPlayer, dateFormat, passedArgs));
 
         sendReply(msg, messageBuilder.build());
     }
