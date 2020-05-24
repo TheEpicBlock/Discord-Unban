@@ -45,11 +45,11 @@ public class ConfirmManager {
                 case ACCEPT:
                     plugin.getBanManager().unban(unbanAttempt.requestedPlayer, unbanAttempt.requesterId);
                     unbanAttempts.remove(event.getMessageIdLong());
-                    cleanUpMessage(event, String.format("'%s' was unbanned by %s", unbanAttempt.requestedPlayer.getName(), event.getUser()));
+                    cleanUpMessage(event, format("unbanSucces", unbanAttempt.requestedPlayer.getName(), event.getUser().getAsMention()));
                     break;
                 case CANCEL:
                     unbanAttempts.remove(event.getMessageIdLong());
-                    cleanUpMessage(event, String.format("'%s' his unban was cancelled by %s", unbanAttempt.requestedPlayer.getName(), event.getUser()));
+                    cleanUpMessage(event, format("unbanCancel", unbanAttempt.requestedPlayer.getName(), event.getUser().getAsMention()));
                     break;
                 default:
                     event.getReaction().removeReaction(event.getUser()).queue();
@@ -99,5 +99,9 @@ public class ConfirmManager {
             this.requestedPlayer = requestedPlayer;
             this.requesterId = requesterId;
         }
+    }
+
+    private String format (String key, Object... objects) {
+        return plugin.getLangStrings().getFormatted(key, objects);
     }
 }
