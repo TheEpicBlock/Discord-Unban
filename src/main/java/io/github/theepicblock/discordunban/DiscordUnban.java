@@ -33,7 +33,7 @@ public class DiscordUnban extends JavaPlugin {
         if (config.getBoolean("RequireConfirmation"))
             confirmManager = new ConfirmManager(this, config.getString("Role"));
         messageProcessor = new MessageProcessor(this, config, confirmManager);
-        discordEventProcessor = new DiscordEventProcessor(messageProcessor);
+        discordEventProcessor = new DiscordEventProcessor(messageProcessor, this);
         loadLangstrings();
 
         //get correct banmanager depending on enabled plugins
@@ -48,6 +48,14 @@ public class DiscordUnban extends JavaPlugin {
 
         //subscribe to discord events
         DiscordSRV.api.subscribe(discordEventProcessor);
+    }
+    
+    public void reload() {
+        debugLog("reloading config and lang.yml");
+        reloadConfig();
+        this.messageProcessor = new MessageProcessor(this, this.getConfig(), confirmManager);
+        this.discordEventProcessor.setMessageProcessor(messageProcessor);
+        loadLangstrings();
     }
 
     private void loadLangstrings() {
