@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.UUID;
 
 public class VanillaBanManager extends BanManager {
-    JavaPlugin plugin;
+    private JavaPlugin plugin;
 
     public VanillaBanManager(JavaPlugin plugin) {
         this.plugin = plugin;

@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
  * Listens for discord events
  */
 public class DiscordEventProcessor {
-    MessageProcessor messageProcessor;
+    private MessageProcessor messageProcessor;
 
     public DiscordEventProcessor(MessageProcessor messageProcessor) {
         this.messageProcessor = messageProcessor;

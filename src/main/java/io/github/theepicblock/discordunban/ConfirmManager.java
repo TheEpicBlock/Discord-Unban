@@ -15,15 +15,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * Manages pending unbans. Listens to reactions
  */
 public class ConfirmManager {
-    final String CANCEL = "U+274c";
-    final String ACCEPT = "U+2705";
-    final String ROLEID;
-    DiscordUnban plugin;
-    ConcurrentHashMap<Long, UnbanAttempt> unbanAttempts = new ConcurrentHashMap<>();
+    public static final String CANCEL = "U+274c";
+    public static final String ACCEPT = "U+2705";
+    private final String roleID;
+    private DiscordUnban plugin;
+    private ConcurrentHashMap<Long, UnbanAttempt> unbanAttempts = new ConcurrentHashMap<>();
 
     public ConfirmManager(DiscordUnban plugin, String roleid) {
         this.plugin = plugin;
-        ROLEID = roleid;
+        roleID = roleid;
         initReactionListener();
     }
 
@@ -34,7 +34,7 @@ public class ConfirmManager {
 
         UnbanAttempt unbanAttempt = unbanAttempts.get(event.getMessageIdLong());
         if (unbanAttempt != null) { //check if this reaction is on a pending unban message
-            if (!DiscordUnbanUtils.checkForPerms(event.getMember(), ROLEID)) {
+            if (!DiscordUnbanUtils.checkForPerms(event.getMember(), roleID)) {
                 //they don't have the perms to confirm an unban.
                 event.getReaction().removeReaction(event.getUser()).queue();
                 return;
