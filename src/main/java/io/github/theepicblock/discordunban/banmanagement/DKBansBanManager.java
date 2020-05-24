@@ -17,7 +17,7 @@ import java.text.DateFormat;
 import java.util.List;
 import java.util.UUID;
 
-public class DKBansBanManager extends BanManager {
+public class DKBansBanManager implements BanManager {
 
     public void unban(OfflinePlayer player, UUID staffmember) {
         NetworkPlayer networkPlayer = BanSystem.getInstance().getPlayerManager().getPlayer(player.getUniqueId());

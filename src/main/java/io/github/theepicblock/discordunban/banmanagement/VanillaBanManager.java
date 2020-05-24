@@ -13,7 +13,7 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.UUID;
 
-public class VanillaBanManager extends BanManager {
+public class VanillaBanManager implements BanManager {
     private JavaPlugin plugin;
 
     public VanillaBanManager(JavaPlugin plugin) {
