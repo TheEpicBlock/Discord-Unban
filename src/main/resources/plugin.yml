@@ -4,4 +4,4 @@ description: "Enables you to unban people via discord"
 author: TheEpicBlock_TEB
 main: io.github.theepicblock.discordunban.DiscordUnban
 depend: [DiscordSRV]
-softdepend: [DKBans]
+softdepend: [DKBans,LiteBans]

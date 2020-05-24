@@ -3,6 +3,7 @@ package io.github.theepicblock.discordunban;
 import github.scarsz.discordsrv.DiscordSRV;
 import io.github.theepicblock.discordunban.banmanagement.BanManager;
 import io.github.theepicblock.discordunban.banmanagement.DKBansBanManager;
+import io.github.theepicblock.discordunban.banmanagement.LiteBansBanManager;
 import io.github.theepicblock.discordunban.banmanagement.VanillaBanManager;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -36,12 +37,14 @@ public class DiscordUnban extends JavaPlugin {
         loadLangstrings();
 
         //get correct banmanager depending on enabled plugins
-        if (getServer().getPluginManager().getPlugin("DKBans") != null) {  //dkbans is installed
-            getLogger().info("Enabled DKBans integration");
+        if (isEnabled("DKbans")) {  //dkbans is installed
             banManager = new DKBansBanManager();
+        } else if (isEnabled("LiteBans")) {
+            banManager = new LiteBansBanManager();
         } else {
             banManager = new VanillaBanManager(this);
         }
+        debugLog("Banmanager is: " + banManager.getClass().getSimpleName());
 
         //subscribe to discord events
         DiscordSRV.api.subscribe(discordEventProcessor);
@@ -57,6 +60,10 @@ public class DiscordUnban extends JavaPlugin {
 
         FileConfiguration langConfig = YamlConfiguration.loadConfiguration(langFile);
         langStrings = new LangStrings(langConfig);
+    }
+
+    private boolean isEnabled (String plugin) {
+        return getServer().getPluginManager().getPlugin(plugin) != null;
     }
 
     public void debugLog(String message) {
