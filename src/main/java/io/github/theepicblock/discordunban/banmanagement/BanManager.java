@@ -7,14 +7,14 @@ import javax.annotation.Nullable;
 import java.text.DateFormat;
 import java.util.UUID;
 
-public abstract class BanManager {
+public interface BanManager {
 
     /**
      * Unbans a player
      *
      * @param player player to unban
      */
-    public abstract void unban(OfflinePlayer player, UUID staffmember);
+    void unban(OfflinePlayer player, UUID staffmember);
 
     /**
      * checks if a player is banned
@@ -22,7 +22,7 @@ public abstract class BanManager {
      * @param player player to check
      * @return true if the player is banned
      */
-    public abstract boolean isBanned(OfflinePlayer player);
+    boolean isBanned(OfflinePlayer player);
 
     /**
      * gets information about a players bans as an embed
@@ -32,5 +32,5 @@ public abstract class BanManager {
      * @param args       argument passed through from the command. This may affect the output in any way.
      * @return an embed representing the info
      */
-    public abstract MessageEmbed getBanInfo(OfflinePlayer player, DateFormat dateFormat, @Nullable String[] args);
+    MessageEmbed getBanInfo(OfflinePlayer player, DateFormat dateFormat, @Nullable String[] args);
 }
