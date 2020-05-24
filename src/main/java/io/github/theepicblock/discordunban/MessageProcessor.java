@@ -11,6 +11,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -39,7 +40,7 @@ public class MessageProcessor {
         unbanCommand = config.getString("UnbanCommand") + ' ';
         infoCommand = config.getString("InfoCommand") + ' ';
         roleId = config.getString("Role");
-        dateFormat = new SimpleDateFormat(config.getString("DateFormat"));
+        dateFormat = new SimpleDateFormat(Objects.requireNonNull(config.getString("DateFormat")));
         showInfoAfterUnban = config.getBoolean("ShowInfoAfterUnban");
         requireConfirmation = config.getBoolean("RequireConfirmation");
 
@@ -77,7 +78,7 @@ public class MessageProcessor {
         DiscordUtil.deleteMessage(msg);
 
         if (!DiscordUnbanUtils.checkForPerms(msg, roleId)) { //check perms
-            sendReply(msg, String.format("%s, you don't have the perms to unban", msg.getAuthor()));
+            sendReply(msg, format("noPermUnban", msg.getAuthor().getAsMention()));
             return;
         }
 
@@ -87,18 +88,18 @@ public class MessageProcessor {
         String playerStr = args[0]; //the player is the first argument, the rest is ignored
         OfflinePlayer requestedPlayer = DiscordUnbanUtils.getPlayerFromTargetted(playerStr);
         if (requestedPlayer == null) {
-            sendReply(msg, String.format("%s, couldn't find '%s'", msg.getAuthor(), playerStr));
+            sendReply(msg, format("cantFind", msg.getAuthor().getAsMention(), playerStr));
             return;
         }
 
         if (!plugin.getBanManager().isBanned(requestedPlayer)) { //you can't unban someone who isn't banned
-            sendReply(msg, String.format("'%s' is not banned, %s", requestedPlayer.getName(), msg.getAuthor()));
+            sendReply(msg, format("notBanned", msg.getAuthor().getAsMention(), requestedPlayer.getName()));
             return;
         }
 
         UUID requesterID = DiscordSRV.getPlugin().getAccountLinkManager().getUuid(msg.getAuthor().getId()); //get the person who is trying to unban someone
         if (requesterID == null) {
-            sendReply(msg, String.format("%s, your account is not linked with a mc account", msg.getAuthor()));
+            sendReply(msg, format("notLinked", msg.getAuthor().getAsMention()));
             return;
         }
 
@@ -110,10 +111,10 @@ public class MessageProcessor {
         }
 
         if (requireConfirmation) {
-            messageBuilder.append(String.format("%s, do you want to unban %s?", msg.getAuthor(), requestedPlayer.getName()));
+            messageBuilder.append(format("unbanAsk", msg.getAuthor().getAsMention(), requestedPlayer.getName()));
             sendReply(msg, messageBuilder.build(), (message) -> confirmManager.addMessageToConfirmQueue(message, requestedPlayer, requesterID));
         } else {
-            messageBuilder.append(String.format("'%s' was unbanned by %s", requestedPlayer.getName(), msg.getAuthor()));
+            messageBuilder.append(format("unbanSucces", requestedPlayer.getName(), msg.getAuthor().getAsMention()));
             plugin.getBanManager().unban(requestedPlayer, requesterID); //directly unban the person
             sendReply(msg, messageBuilder.build());
         }
@@ -135,7 +136,7 @@ public class MessageProcessor {
         DiscordUtil.deleteMessage(msg);
 
         if (!DiscordUnbanUtils.checkForPerms(msg, roleId)) {
-            sendReply(msg, String.format("%s, you don't have the perms to look up info", msg.getAuthor()));
+            sendReply(msg, format("noPermInfo", msg.getAuthor().getAsMention()));
             return;
         }
 
@@ -146,7 +147,7 @@ public class MessageProcessor {
         OfflinePlayer requestedPlayer = DiscordUnbanUtils.getPlayerFromTargetted(playerStr);
 
         if (requestedPlayer == null) {
-            sendReply(msg, String.format("%s, couldn't find '%s'", msg.getAuthor(), playerStr));
+            sendReply(msg, format("cantFind", msg.getAuthor().getAsMention(), playerStr));
             return;
         }
 
@@ -159,9 +160,7 @@ public class MessageProcessor {
         //reply with the info
         MessageBuilder messageBuilder = new MessageBuilder();
 
-        String message = String.format("%s, info for '%s'",
-                msg.getAuthor(),
-                requestedPlayer.getName());
+        String message = format("infoSucces", msg.getAuthor().getAsMention(), requestedPlayer.getName());
 
         messageBuilder.append(message);
         messageBuilder.setEmbed(plugin.getBanManager().getBanInfo(requestedPlayer, dateFormat, passedArgs));
@@ -179,5 +178,9 @@ public class MessageProcessor {
 
     private void sendReply(Message replyMessage, Message message, Consumer<Message> consumer) {
         DiscordUtil.queueMessage(replyMessage.getTextChannel(), message, consumer);
+    }
+
+    private String format (String key, Object... objects) {
+        return plugin.getLangStrings().getFormatted(key, objects);
     }
 }
