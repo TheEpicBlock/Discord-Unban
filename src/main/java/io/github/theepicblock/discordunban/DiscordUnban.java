@@ -37,7 +37,7 @@ public class DiscordUnban extends JavaPlugin {
         loadLangstrings();
 
         //get correct banmanager depending on enabled plugins
-        if (isEnabled("DKbans")) {  //dkbans is installed
+        if (isEnabled("DKBans")) {  //dkbans is installed
             banManager = new DKBansBanManager();
         } else if (isEnabled("LiteBans")) {
             banManager = new LiteBansBanManager();
