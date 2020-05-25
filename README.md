@@ -1,5 +1,5 @@
-# Discord Unban
 ![Spiget tested server versions](https://img.shields.io/spiget/tested-versions/79199?style=flat-square) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/TheEpicBlock/Discord-Unban?style=flat-square)  
+# Discord Unban
 Easily view bans and unban people via discord!   
 Requires [DiscordSRV](https://www.spigotmc.org/resources/discordsrv.18494/).  
 Please look at the [wiki](https://github.com/TheEpicBlock/Discord-Unban/wiki) for info on usage.  
