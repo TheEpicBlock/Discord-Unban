@@ -1,5 +1,5 @@
 name: DiscordUnban
-version: 1.2.0
+version: 1.3.0
 description: "Enables you to unban people via discord"
 author: TheEpicBlock_TEB
 main: io.github.theepicblock.discordunban.DiscordUnban
