@@ -30,6 +30,7 @@ public class MessageProcessor {
     private final boolean showInfoAfterUnban;
     private final boolean requireConfirmation;
     private final ConfirmManager confirmManager;
+    private final boolean headInInfo;
 
 
     public MessageProcessor(DiscordUnban plugin, FileConfiguration config, ConfirmManager confirmManager) {
@@ -37,13 +38,14 @@ public class MessageProcessor {
         this.confirmManager = confirmManager;
 
         //import config
-        enabledChannels = config.getStringList("EnabledChannels");
-        unbanCommand = config.getString("UnbanCommand") + ' ';
-        infoCommand = config.getString("InfoCommand") + ' ';
-        roleId = config.getString("Role");
-        dateFormat = new SimpleDateFormat(Objects.requireNonNull(config.getString("DateFormat")));
-        showInfoAfterUnban = config.getBoolean("ShowInfoAfterUnban");
+        enabledChannels     = config.getStringList("EnabledChannels");
+        unbanCommand        = config.getString("UnbanCommand") + ' ';
+        infoCommand         = config.getString("InfoCommand") + ' ';
+        roleId              = config.getString("Role");
+        dateFormat          = new SimpleDateFormat(Objects.requireNonNull(config.getString("DateFormat")));
+        showInfoAfterUnban  = config.getBoolean("ShowInfoAfterUnban");
         requireConfirmation = config.getBoolean("RequireConfirmation");
+        headInInfo          = config.getBoolean("HeadInInfo");
 
         //debug info
         if (enabledChannels.size() > 0) {
@@ -166,6 +168,7 @@ public class MessageProcessor {
         messageBuilder.append(message);
 
         EmbedBuilder infoEmbed = plugin.getBanManager().getBanInfo(requestedPlayer, dateFormat, passedArgs);
+        if (headInInfo) infoEmbed.setThumbnail(DiscordSRV.getPlugin().getEmbedAvatarUrl(requestedPlayer.getName(),requestedPlayer.getUniqueId()));
         messageBuilder.setEmbed(infoEmbed.build());
 
 

@@ -7,4 +7,5 @@ InfoCommand: "!baninfo"         #command to look up ban info
 ShowInfoAfterUnban: false        #shows a persons baninfo after you've unbanned them. Useful in combination with RequireConfirmation
 RequireConfirmation: false      #requires a reaction to confirm the unban
 DateFormat: "HH:mm dd-MM-yyyy"  #format used by this plugin. see https://docs.oracle.com/javase/10/docs/api/java/text/SimpleDateFormat.html
+HeadInInfo: true                #includes the head of the mc player in the baninfo response
 Debug: false                    #if true, console will be spammed with debug info
