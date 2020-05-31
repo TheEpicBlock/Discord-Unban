@@ -22,12 +22,6 @@ public class DiscordUnban extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        onLoad();
-        //subscribe to discord events
-        DiscordSRV.api.subscribe(discordEventProcessor);
-    }
-
-    public void onLoad() {
         //load config
         this.saveDefaultConfig();
         FileConfiguration config = this.getConfig();
@@ -51,12 +45,28 @@ public class DiscordUnban extends JavaPlugin {
             banManager = new VanillaBanManager(this);
         }
         debugLog("Banmanager is: " + banManager.getClass().getSimpleName());
+
+        //subscribe to discord events
+        DiscordSRV.api.subscribe(discordEventProcessor);
     }
     
     public void reload() {
-        debugLog("reloading config and lang.yml");
+        FileConfiguration oldConfig = this.getConfig();
         reloadConfig();
-        onLoad();
+        FileConfiguration config = this.getConfig();
+
+        debug = config.getBoolean("Debug");
+
+        debugLog("reloading config and lang.yml");
+
+        if (config.getBoolean("RequireConfirmation") != oldConfig.getBoolean("RequireConfirmation")) {
+            getLogger().info("requireConfirmation changed. May or may not cause errors");
+            confirmManager = new ConfirmManager(this, config.getString("Role"));
+        }
+
+        this.messageProcessor = new MessageProcessor(this, this.getConfig(), confirmManager);
+        this.discordEventProcessor.setMessageProcessor(messageProcessor);
+        loadLangstrings();
     }
 
     private void loadLangstrings() {
