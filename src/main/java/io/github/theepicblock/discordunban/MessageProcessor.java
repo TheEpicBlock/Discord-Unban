@@ -49,9 +49,9 @@ public class MessageProcessor {
 
         //debug info
         if (enabledChannels.size() > 0) {
-            enabledChannels.forEach((channel) -> plugin.debugLog("'" + channel + "' is enabled"));
+            enabledChannels.forEach((channel) -> plugin.debugLog("channel '" + channel + "' is enabled"));
         } else {
-            plugin.getLogger().warning("no channels enabled");
+            plugin.getLogger().warning("no channels enabled! Discord-Unban won't react to anything!");
         }
     }
 

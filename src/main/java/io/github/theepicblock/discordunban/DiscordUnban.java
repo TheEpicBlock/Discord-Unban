@@ -22,6 +22,12 @@ public class DiscordUnban extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        onLoad();
+        //subscribe to discord events
+        DiscordSRV.api.subscribe(discordEventProcessor);
+    }
+
+    public void onLoad() {
         //load config
         this.saveDefaultConfig();
         FileConfiguration config = this.getConfig();
@@ -45,17 +51,12 @@ public class DiscordUnban extends JavaPlugin {
             banManager = new VanillaBanManager(this);
         }
         debugLog("Banmanager is: " + banManager.getClass().getSimpleName());
-
-        //subscribe to discord events
-        DiscordSRV.api.subscribe(discordEventProcessor);
     }
     
     public void reload() {
         debugLog("reloading config and lang.yml");
         reloadConfig();
-        this.messageProcessor = new MessageProcessor(this, this.getConfig(), confirmManager);
-        this.discordEventProcessor.setMessageProcessor(messageProcessor);
-        loadLangstrings();
+        onLoad();
     }
 
     private void loadLangstrings() {
