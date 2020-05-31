@@ -59,7 +59,8 @@ public class DiscordUnban extends JavaPlugin {
 
         debugLog("reloading config and lang.yml");
 
-        if (config.getBoolean("RequireConfirmation") != oldConfig.getBoolean("RequireConfirmation")) {
+        if (config.getBoolean("RequireConfirmation") && !oldConfig.getBoolean("RequireConfirmation")) {
+            //require confirm was previously not enabled, but now is
             getLogger().info("requireConfirmation changed. May or may not cause errors");
             confirmManager = new ConfirmManager(this, config.getString("Role"));
         }
