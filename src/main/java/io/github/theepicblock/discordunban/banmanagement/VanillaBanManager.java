@@ -1,7 +1,6 @@
 package io.github.theepicblock.discordunban.banmanagement;
 
 import github.scarsz.discordsrv.dependencies.jda.api.EmbedBuilder;
-import github.scarsz.discordsrv.dependencies.jda.api.entities.MessageEmbed;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
@@ -30,14 +29,16 @@ public class VanillaBanManager implements BanManager {
         return player.isBanned();
     }
 
-    public MessageEmbed getBanInfo(OfflinePlayer player, DateFormat dateFormat, @Nullable String[] args) {
+    public EmbedBuilder getBanInfo(OfflinePlayer player, DateFormat dateFormat, @Nullable String[] args) {
+        //get ban info and check if it's not null
         BanEntry banEntry = plugin.getServer().getBanList(BanList.Type.NAME).getBanEntry(player.getName());
+        if (banEntry == null) return new EmbedBuilder().appendDescription("Error, can't find ban information");
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
 
         if (!this.isBanned(player)) { //this player isn't banned, so we can't get any info
             embedBuilder.appendDescription(player.getName() + " is not currently banned");
-            return embedBuilder.build();
+            return embedBuilder;
         }
 
         //get expiration date
@@ -55,6 +56,6 @@ public class VanillaBanManager implements BanManager {
         embedBuilder.addField("ends", expiration, true);
         embedBuilder.addField("reason", banEntry.getReason(), false);
 
-        return embedBuilder.build();
+        return embedBuilder;
     }
 }

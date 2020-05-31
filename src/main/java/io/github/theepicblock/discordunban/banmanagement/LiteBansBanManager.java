@@ -1,7 +1,6 @@
 package io.github.theepicblock.discordunban.banmanagement;
 
 import github.scarsz.discordsrv.dependencies.jda.api.EmbedBuilder;
-import github.scarsz.discordsrv.dependencies.jda.api.entities.MessageEmbed;
 import litebans.api.Database;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -28,7 +27,7 @@ public class LiteBansBanManager implements BanManager {
     }
 
     @Override
-    public MessageEmbed getBanInfo(OfflinePlayer player, DateFormat dateFormat, @Nullable String[] args) {
+    public EmbedBuilder getBanInfo(OfflinePlayer player, DateFormat dateFormat, @Nullable String[] args) {
         String uuid = player.getUniqueId().toString();
         String query = "SELECT * FROM {bans} WHERE uuid=?";
 
@@ -57,6 +56,6 @@ public class LiteBansBanManager implements BanManager {
             e.printStackTrace();
         }
 
-        return embedBuilder.build();
+        return embedBuilder;
     }
 }

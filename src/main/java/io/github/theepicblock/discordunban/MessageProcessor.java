@@ -1,6 +1,7 @@
 package io.github.theepicblock.discordunban;
 
 import github.scarsz.discordsrv.DiscordSRV;
+import github.scarsz.discordsrv.dependencies.jda.api.EmbedBuilder;
 import github.scarsz.discordsrv.dependencies.jda.api.MessageBuilder;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.Message;
 import github.scarsz.discordsrv.util.DiscordUtil;
@@ -107,7 +108,8 @@ public class MessageProcessor {
         MessageBuilder messageBuilder = new MessageBuilder();
 
         if (showInfoAfterUnban) {
-            messageBuilder.setEmbed(plugin.getBanManager().getBanInfo(requestedPlayer, dateFormat, null));
+            EmbedBuilder infoEmbed = plugin.getBanManager().getBanInfo(requestedPlayer, dateFormat, null);
+            messageBuilder.setEmbed(infoEmbed.build());
         }
 
         if (requireConfirmation) {
@@ -161,9 +163,11 @@ public class MessageProcessor {
         MessageBuilder messageBuilder = new MessageBuilder();
 
         String message = format("infoSucces", msg.getAuthor().getAsMention(), requestedPlayer.getName());
-
         messageBuilder.append(message);
-        messageBuilder.setEmbed(plugin.getBanManager().getBanInfo(requestedPlayer, dateFormat, passedArgs));
+
+        EmbedBuilder infoEmbed = plugin.getBanManager().getBanInfo(requestedPlayer, dateFormat, passedArgs);
+        messageBuilder.setEmbed(infoEmbed.build());
+
 
         sendReply(msg, messageBuilder.build());
     }
