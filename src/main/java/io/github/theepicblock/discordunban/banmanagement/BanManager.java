@@ -1,6 +1,6 @@
 package io.github.theepicblock.discordunban.banmanagement;
 
-import github.scarsz.discordsrv.dependencies.jda.api.entities.MessageEmbed;
+import github.scarsz.discordsrv.dependencies.jda.api.EmbedBuilder;
 import org.bukkit.OfflinePlayer;
 
 import javax.annotation.Nullable;
@@ -32,5 +32,5 @@ public interface BanManager {
      * @param args       argument passed through from the command. This may affect the output in any way.
      * @return an embed representing the info
      */
-    MessageEmbed getBanInfo(OfflinePlayer player, DateFormat dateFormat, @Nullable String[] args);
+    EmbedBuilder getBanInfo(OfflinePlayer player, DateFormat dateFormat, @Nullable String[] args);
 }

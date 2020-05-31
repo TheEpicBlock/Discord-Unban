@@ -1,4 +1,4 @@
-unbanAsk:    "{0}, do you want to unban {1}"
+unbanAsk:    "{0}, do you want to unban {1}?"
 unbanSucces: "'{0}' was unbanned by {1}"
 unbanCancel: "'{0}' his unban was cancelled by {1}"
 infoSucces:  "{0}, info for '{1}'"

@@ -1,6 +1,7 @@
 package io.github.theepicblock.discordunban;
 
 import github.scarsz.discordsrv.DiscordSRV;
+import github.scarsz.discordsrv.dependencies.jda.api.EmbedBuilder;
 import github.scarsz.discordsrv.dependencies.jda.api.MessageBuilder;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.Message;
 import github.scarsz.discordsrv.util.DiscordUtil;
@@ -29,6 +30,7 @@ public class MessageProcessor {
     private final boolean showInfoAfterUnban;
     private final boolean requireConfirmation;
     private final ConfirmManager confirmManager;
+    private final boolean headInInfo;
 
 
     public MessageProcessor(DiscordUnban plugin, FileConfiguration config, ConfirmManager confirmManager) {
@@ -36,19 +38,20 @@ public class MessageProcessor {
         this.confirmManager = confirmManager;
 
         //import config
-        enabledChannels = config.getStringList("EnabledChannels");
-        unbanCommand = config.getString("UnbanCommand") + ' ';
-        infoCommand = config.getString("InfoCommand") + ' ';
-        roleId = config.getString("Role");
-        dateFormat = new SimpleDateFormat(Objects.requireNonNull(config.getString("DateFormat")));
-        showInfoAfterUnban = config.getBoolean("ShowInfoAfterUnban");
+        enabledChannels     = config.getStringList("EnabledChannels");
+        unbanCommand        = config.getString("UnbanCommand") + ' ';
+        infoCommand         = config.getString("InfoCommand") + ' ';
+        roleId              = config.getString("Role");
+        dateFormat          = new SimpleDateFormat(Objects.requireNonNull(config.getString("DateFormat")));
+        showInfoAfterUnban  = config.getBoolean("ShowInfoAfterUnban");
         requireConfirmation = config.getBoolean("RequireConfirmation");
+        headInInfo          = config.getBoolean("HeadInInfo");
 
         //debug info
         if (enabledChannels.size() > 0) {
-            enabledChannels.forEach((channel) -> plugin.debugLog("'" + channel + "' is enabled"));
+            enabledChannels.forEach((channel) -> plugin.debugLog("channel '" + channel + "' is enabled"));
         } else {
-            plugin.getLogger().warning("no channels enabled");
+            plugin.getLogger().warning("no channels enabled! Discord-Unban won't react to anything!");
         }
     }
 
@@ -107,7 +110,8 @@ public class MessageProcessor {
         MessageBuilder messageBuilder = new MessageBuilder();
 
         if (showInfoAfterUnban) {
-            messageBuilder.setEmbed(plugin.getBanManager().getBanInfo(requestedPlayer, dateFormat, null));
+            EmbedBuilder infoEmbed = plugin.getBanManager().getBanInfo(requestedPlayer, dateFormat, null);
+            messageBuilder.setEmbed(infoEmbed.build());
         }
 
         if (requireConfirmation) {
@@ -161,9 +165,12 @@ public class MessageProcessor {
         MessageBuilder messageBuilder = new MessageBuilder();
 
         String message = format("infoSucces", msg.getAuthor().getAsMention(), requestedPlayer.getName());
-
         messageBuilder.append(message);
-        messageBuilder.setEmbed(plugin.getBanManager().getBanInfo(requestedPlayer, dateFormat, passedArgs));
+
+        EmbedBuilder infoEmbed = plugin.getBanManager().getBanInfo(requestedPlayer, dateFormat, passedArgs);
+        if (headInInfo) infoEmbed.setThumbnail(DiscordSRV.getPlugin().getEmbedAvatarUrl(requestedPlayer.getName(),requestedPlayer.getUniqueId()));
+        messageBuilder.setEmbed(infoEmbed.build());
+
 
         sendReply(msg, messageBuilder.build());
     }

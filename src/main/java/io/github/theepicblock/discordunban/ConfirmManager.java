@@ -68,7 +68,7 @@ public class ConfirmManager {
     private void cleanUpMessage(MessageReactionAddEvent event, String newMessage) {
         event.getTextChannel().editMessageById(event.getMessageIdLong(), newMessage).queue((msg) -> {
             msg.clearReactions().queue();
-            //msg.suppressEmbeds(true); not included in the main DiscordSRV yet
+            msg.suppressEmbeds(true).queue();
         });
     }
 
@@ -79,10 +79,10 @@ public class ConfirmManager {
                 JDA jda = DiscordSRV.getPlugin().getJda();
                 if (jda != null) {
                     if (jda.getStatus() == JDA.Status.CONNECTED) {
-                        plugin.getLogger().info("jda is connected, enabling reaction listener");
+                        plugin.getLogger().info("jda is connected, added reaction listener");
                         jda.addEventListener(new DiscordEventProcessor.JDAReactionListener(ConfirmManager.this));
                     } else {
-                        plugin.getLogger().warning("jda doesn't seem to be connected. Error whilst enabling reaction listener");
+                        plugin.getLogger().warning("jda doesn't seem to be connected. Can't enable reaction listener");
                         plugin.getLogger().warning("jda status: " + jda.getStatus().toString());
                     }
                     this.cancel();

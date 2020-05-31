@@ -51,8 +51,20 @@ public class DiscordUnban extends JavaPlugin {
     }
     
     public void reload() {
-        debugLog("reloading config and lang.yml");
+        FileConfiguration oldConfig = this.getConfig();
         reloadConfig();
+        FileConfiguration config = this.getConfig();
+
+        debug = config.getBoolean("Debug");
+
+        debugLog("reloading config and lang.yml");
+
+        if (config.getBoolean("RequireConfirmation") && !oldConfig.getBoolean("RequireConfirmation")) {
+            //require confirm was previously not enabled, but now is
+            getLogger().info("requireConfirmation changed. May or may not cause errors");
+            confirmManager = new ConfirmManager(this, config.getString("Role"));
+        }
+
         this.messageProcessor = new MessageProcessor(this, this.getConfig(), confirmManager);
         this.discordEventProcessor.setMessageProcessor(messageProcessor);
         loadLangstrings();

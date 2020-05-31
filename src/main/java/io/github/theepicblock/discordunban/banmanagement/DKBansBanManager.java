@@ -8,7 +8,6 @@ import ch.dkrieger.bansystem.lib.player.history.entry.Ban;
 import ch.dkrieger.bansystem.lib.player.history.entry.HistoryEntry;
 import com.google.common.collect.Lists;
 import github.scarsz.discordsrv.dependencies.jda.api.EmbedBuilder;
-import github.scarsz.discordsrv.dependencies.jda.api.entities.MessageEmbed;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 
@@ -29,7 +28,7 @@ public class DKBansBanManager implements BanManager {
         return networkPlayer.isBanned();
     }
 
-    public MessageEmbed getBanInfo(OfflinePlayer player, DateFormat dateFormat, @Nullable String[] args) {
+    public EmbedBuilder getBanInfo(OfflinePlayer player, DateFormat dateFormat, @Nullable String[] args) {
         if (args == null) return noArgs(player, dateFormat);
         try {
             int page = Integer.parseInt(args[0]);
@@ -39,7 +38,7 @@ public class DKBansBanManager implements BanManager {
         }
     }
 
-    private MessageEmbed noArgs(OfflinePlayer player, DateFormat dateFormat) {
+    private EmbedBuilder noArgs(OfflinePlayer player, DateFormat dateFormat) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         NetworkPlayer networkPlayer = BanSystem.getInstance().getPlayerManager().getPlayer(player.getUniqueId());
 
@@ -69,10 +68,10 @@ public class DKBansBanManager implements BanManager {
         embedBuilder.addField("", "**History**", false);//get some history
         embedBuilder.addField("warnings", String.valueOf(history.getWarnCount()), true);
         embedBuilder.addField("bans", String.valueOf(history.getBanCount()), true);
-        return embedBuilder.build();
+        return embedBuilder;
     }
 
-    private MessageEmbed getEmbedForPage(OfflinePlayer player, DateFormat dateFormat, int page) {
+    private EmbedBuilder getEmbedForPage(OfflinePlayer player, DateFormat dateFormat, int page) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         int entriesPerPage = 10;
 
@@ -81,7 +80,7 @@ public class DKBansBanManager implements BanManager {
 
         String entries = getBanHistoryList(history, (page - 1) * entriesPerPage, page * entriesPerPage, dateFormat);
         embedBuilder.addField("Page " + page, entries, false);
-        return embedBuilder.build();
+        return embedBuilder;
     }
 
     /**
