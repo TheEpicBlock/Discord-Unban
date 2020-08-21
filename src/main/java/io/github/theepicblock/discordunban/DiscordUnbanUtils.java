@@ -91,7 +91,7 @@ public class DiscordUnbanUtils {
     }
 
     /**
-     * @param Message message to parse. Eg "<@!123456>" or "Notch"
+     * @param Message message to parse. Eg "<@!123456>", "123456" or "Notch"
      * @return the offline player matching the string
      */
     public static OfflinePlayer getPlayerFromTargetted(String Message) {
@@ -103,6 +103,15 @@ public class DiscordUnbanUtils {
             try {
                 String id = Message.substring(3, Message.length() - 1); // converts "<@!1234>" to "1234"
                 UUID playerId = DiscordSRV.getPlugin().getAccountLinkManager().getUuid(id);
+                return Bukkit.getOfflinePlayer(playerId);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        if (Character.isDigit(Message.charAt(0))) {
+            try {
+                UUID playerId = DiscordSRV.getPlugin().getAccountLinkManager().getUuid(Message);
                 return Bukkit.getOfflinePlayer(playerId);
             } catch (Exception e) {
                 return null;
