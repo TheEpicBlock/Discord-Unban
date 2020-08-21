@@ -19,6 +19,7 @@ public class DiscordUnbanUtils {
      * @return true if the message is in the correct channel
      */
     public static boolean checkChannel(Message msg, List<String> channelId) {
+        if (channelId.get(0).equals("*")) return true;
         return channelId.contains(msg.getChannel().getId());
     }
 

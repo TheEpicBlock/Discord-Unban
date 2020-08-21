@@ -1,6 +1,5 @@
 EnabledChannels:                        #channels where you can use this plugin's commands
-    - '693207926692642826(change this)'
-    - '707248041928949891(change this)'
+    - '*'
 Role: "707310286251622492(change this)" #role needed to use commands
 UnbanCommand: "!unban"                  #command to unban people
 InfoCommand: "!baninfo"                 #command to look up ban info
