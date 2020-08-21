@@ -25,6 +25,7 @@ public class DKBansBanManager implements BanManager {
 
     public boolean isBanned(OfflinePlayer player) {
         NetworkPlayer networkPlayer = BanSystem.getInstance().getPlayerManager().getPlayer(player.getUniqueId());
+        if (networkPlayer == null) return false;
         return networkPlayer.isBanned();
     }
 
@@ -41,6 +42,11 @@ public class DKBansBanManager implements BanManager {
     private EmbedBuilder noArgs(OfflinePlayer player, DateFormat dateFormat) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         NetworkPlayer networkPlayer = BanSystem.getInstance().getPlayerManager().getPlayer(player.getUniqueId());
+
+        if (networkPlayer == null) {
+            embedBuilder.setDescription("No info available");
+            return embedBuilder;
+        }
 
         History history = networkPlayer.getHistory();
 
