@@ -39,8 +39,8 @@ public class MessageProcessor {
 
         //import config
         enabledChannels     = config.getStringList("EnabledChannels");
-        unbanCommand        = config.getString("UnbanCommand") + ' ';
-        infoCommand         = config.getString("InfoCommand") + ' ';
+        unbanCommand        = config.getString("UnbanCommand");
+        infoCommand         = config.getString("InfoCommand");
         roleId              = config.getString("Role");
         dateFormat          = new SimpleDateFormat(Objects.requireNonNull(config.getString("DateFormat")));
         showInfoAfterUnban  = config.getBoolean("ShowInfoAfterUnban");
@@ -86,6 +86,11 @@ public class MessageProcessor {
         }
 
         String[] args = DiscordUnbanUtils.getArgsFromCommand(msg.getContentRaw(), unbanCommand);
+
+        if (args == null) {
+            sendReply(msg, format("moreArgs", msg.getAuthor().getAsMention()));
+            return;
+        }
 
         //get player requested
         String playerStr = args[0]; //the player is the first argument, the rest is ignored
@@ -145,6 +150,11 @@ public class MessageProcessor {
         }
 
         String[] args = DiscordUnbanUtils.getArgsFromCommand(msg.getContentRaw(), infoCommand);
+
+        if (args == null) {
+            sendReply(msg, format("moreArgs"));
+            return;
+        }
 
         //get the player
         String playerStr = args[0]; //player is the first argument

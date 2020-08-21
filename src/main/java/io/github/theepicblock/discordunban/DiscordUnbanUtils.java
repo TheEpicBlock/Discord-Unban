@@ -87,7 +87,10 @@ public class DiscordUnbanUtils {
     }
 
     public static String[] getArgsFromCommand(String message, String command) {
-        String args = stripString(message, command);
+        String args = stripString(message, command).trim();
+        if (args.equals("")) {
+            return null;
+        }
         return args.split(" ");
     }
 
