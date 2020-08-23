@@ -1,3 +1,7 @@
+#whilst updating, this file might get out of date.
+#This doesn't break anything but you need to add the new sections in manually to be able to use them.
+#See https://github.com/TheEpicBlock/Discord-Unban/blob/master/src/main/resources/config.yml for up-to-date info on how this file should look by default
+
 EnabledChannels:                        #channels where you can use this plugin's commands
     - '*'
 Role: "707310286251622492(change this)" #role needed to use commands

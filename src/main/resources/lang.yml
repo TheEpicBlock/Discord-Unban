@@ -1,3 +1,6 @@
+#whilst updating, this file might get out of date. You may need to add in new sections manually to fix it.
+#See https://github.com/TheEpicBlock/Discord-Unban/blob/master/src/main/resources/lang.yml for how it should look
+
 unbanAsk:    "{0}, do you want to unban {1}?"
 unbanSucces: "'{0}' was unbanned by {1}"
 unbanCancel: "'{0}' his unban was cancelled by {1}"
