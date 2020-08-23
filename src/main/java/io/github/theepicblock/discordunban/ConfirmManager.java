@@ -74,13 +74,13 @@ public class ConfirmManager {
     }
 
     /**
-     * Cancels all ban requests due to inactivity
+     * Cancels all ban requests due to the server reloading
      */
     public void cancelAll() {
         unbanRequests.forEach((messageId, request) -> {
             TextChannel channel = DiscordSRV.getPlugin().getJda().getTextChannelById(request.channelId);
             if (channel != null) {
-                Message msg = channel.editMessageById(messageId, plugin.getLangStrings().getFormatted("unbanCancel", request.requestedPlayer.getName(), "inactivity")).complete();
+                Message msg = channel.editMessageById(messageId, plugin.getLangStrings().getFormatted("unbanCancel", request.requestedPlayer.getName(), "the server stopping")).complete();
 
                 msg.clearReactions().queue();
                 msg.suppressEmbeds(true).queue();
@@ -91,6 +91,20 @@ public class ConfirmManager {
 
     public void addMessageToQueue(Message message, OfflinePlayer requestedPlayer) {
         plugin.debugLog("added message '" + message.getId() + "to the confirm queue");
+
+        //Check if there are other requests open for the same player
+        if (!unbanRequests.isEmpty()) {
+            unbanRequests.forEach((id, request) -> {
+                if (request.requestedPlayer == requestedPlayer) {
+                    TextChannel channel = DiscordSRV.getPlugin().getJda().getTextChannelById(request.channelId);
+                    if (channel != null) {
+                        cleanUpMessage(channel, id, plugin.getLangStrings().getFormatted("unbanCancel", request.requestedPlayer.getName(), "another request being created"));
+                    }
+                    unbanRequests.remove(id);
+                }
+            });
+        }
+
         UnbanRequest unbanRequest = new UnbanRequest(requestedPlayer, message.getChannel().getIdLong());
         unbanRequests.put(message.getIdLong(), unbanRequest);
 
