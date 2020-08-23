@@ -59,7 +59,7 @@ public class ConfirmManager {
 
             //Check if there are lingering unban requests
             if (!unbanRequests.isEmpty()) {
-                long oneDayAgo = System.currentTimeMillis();// - (1000 * 60 * 60 * 24);
+                long oneDayAgo = System.currentTimeMillis() - (1000 * 60 * 60 * 24);
                 unbanRequests.forEach((id, requestA) -> {
                     if (requestA.time < oneDayAgo) {
                         TextChannel channel = DiscordSRV.getPlugin().getJda().getTextChannelById(request.channelId);
