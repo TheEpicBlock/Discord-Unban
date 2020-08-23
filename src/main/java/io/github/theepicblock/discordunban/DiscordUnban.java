@@ -76,7 +76,7 @@ public class DiscordUnban extends JavaPlugin {
         }
 
         FileConfiguration langConfig = YamlConfiguration.loadConfiguration(langFile);
-        langStrings = new LangStrings(langConfig);
+        langStrings = new LangStrings(langConfig, getLogger());
     }
 
     private boolean isEnabled (String plugin) {

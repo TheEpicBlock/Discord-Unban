@@ -152,7 +152,7 @@ public class MessageProcessor {
         String[] args = DiscordUnbanUtils.getArgsFromCommand(msg.getContentRaw(), infoCommand);
 
         if (args == null) {
-            sendReply(msg, format("moreArgs"));
+            sendReply(msg, format("moreArgs", msg.getAuthor().getAsMention()));
             return;
         }
 
@@ -197,7 +197,7 @@ public class MessageProcessor {
         DiscordUtil.queueMessage(replyMessage.getTextChannel(), message, consumer);
     }
 
-    private String format (String key, Object... objects) {
+    private String format(String key, Object... objects) {
         return plugin.getLangStrings().getFormatted(key, objects);
     }
 }
