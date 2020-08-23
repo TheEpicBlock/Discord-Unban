@@ -4,6 +4,7 @@ import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.Member;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.Message;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.Role;
+import github.scarsz.discordsrv.dependencies.jda.api.entities.TextChannel;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
@@ -21,6 +22,18 @@ public class DiscordUnbanUtils {
     public static boolean checkChannel(Message msg, List<String> channelId) {
         if (channelId.get(0).equals("*")) return true;
         return channelId.contains(msg.getChannel().getId());
+    }
+
+    /**
+     * Checks if a channel is in a list of channels
+     *
+     * @param msg       msg to check
+     * @param channelId channels to check for
+     * @return true if the message is in the correct channel
+     */
+    public static boolean checkChannel(TextChannel channel, List<String> channelId) {
+        if (channelId.get(0).equals("*")) return true;
+        return channelId.contains(channel.getId());
     }
 
     /**

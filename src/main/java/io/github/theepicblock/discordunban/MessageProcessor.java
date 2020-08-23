@@ -126,7 +126,7 @@ public class MessageProcessor {
 
         if (requireConfirmation) {
             messageBuilder.append(format("unbanAsk", msg.getAuthor().getAsMention(), requestedPlayer.getName()));
-            sendReply(msg, messageBuilder.build(), (message) -> confirmManager.addMessageToConfirmQueue(message, requestedPlayer, requesterID));
+            sendReply(msg, messageBuilder.build(), (message) -> confirmManager.addMessageToQueue(message, requestedPlayer));
         } else {
             messageBuilder.append(format("unbanSucces", requestedPlayer.getName(), msg.getAuthor().getAsMention()));
             plugin.getBanManager().unban(requestedPlayer, requesterID); //directly unban the person
@@ -210,6 +210,10 @@ public class MessageProcessor {
 
     private void sendReply(Message replyMessage, Message message, Consumer<Message> consumer) {
         DiscordUtil.queueMessage(replyMessage.getTextChannel(), message, consumer);
+    }
+
+    public List<String> getEnabledChannels() {
+        return enabledChannels;
     }
 
     private String format(String key, Object... objects) {

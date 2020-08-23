@@ -3,12 +3,13 @@ package io.github.theepicblock.discordunban;
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.dependencies.jda.api.JDA;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.Message;
+import github.scarsz.discordsrv.dependencies.jda.api.entities.TextChannel;
 import github.scarsz.discordsrv.dependencies.jda.api.events.message.react.MessageReactionAddEvent;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
-import java.util.UUID;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -18,8 +19,8 @@ public class ConfirmManager {
     public static final String CANCEL = "U+274c";
     public static final String ACCEPT = "U+2705";
     private final String roleID;
-    private DiscordUnban plugin;
-    private ConcurrentHashMap<Long, UnbanAttempt> unbanAttempts = new ConcurrentHashMap<>();
+    private final DiscordUnban plugin;
+    private final ConcurrentHashMap<Long,UnbanRequest> unbanRequests = new ConcurrentHashMap<>();
 
     public ConfirmManager(DiscordUnban plugin, String roleid) {
         this.plugin = plugin;
@@ -32,8 +33,9 @@ public class ConfirmManager {
         if (event.getUser() == null || event.getUser().isBot())
             return; //prevent the bot's own reactions from interfering.
 
-        UnbanAttempt unbanAttempt = unbanAttempts.get(event.getMessageIdLong());
-        if (unbanAttempt != null) { //check if this reaction is on a pending unban message
+        UnbanRequest request = unbanRequests.get(event.getMessageIdLong());
+        if (request != null) { //check if this reaction is on a pending unban message
+            OfflinePlayer player = request.requestedPlayer;
             if (!DiscordUnbanUtils.checkForPerms(event.getMember(), roleID)) {
                 //they don't have the perms to confirm an unban.
                 event.getReaction().removeReaction(event.getUser()).queue();
@@ -43,30 +45,70 @@ public class ConfirmManager {
             //see what emoji they've reacted with
             switch (event.getReaction().getReactionEmote().getAsCodepoints()) {
                 case ACCEPT:
-                    plugin.getBanManager().unban(unbanAttempt.requestedPlayer, unbanAttempt.requesterId);
-                    unbanAttempts.remove(event.getMessageIdLong());
-                    cleanUpMessage(event, format("unbanSucces", unbanAttempt.requestedPlayer.getName(), event.getUser().getAsMention()));
+                    plugin.getBanManager().unban(player, DiscordSRV.getPlugin().getAccountLinkManager().getUuid(event.getUser().getId()));
+                    unbanRequests.remove(event.getMessageIdLong());
+                    cleanUpMessage(event, format("unbanSucces", player.getName(), event.getUser().getAsMention()));
                     break;
                 case CANCEL:
-                    unbanAttempts.remove(event.getMessageIdLong());
-                    cleanUpMessage(event, format("unbanCancel", unbanAttempt.requestedPlayer.getName(), event.getUser().getAsMention()));
+                    unbanRequests.remove(event.getMessageIdLong());
+                    cleanUpMessage(event, format("unbanCancel", player.getName(), event.getUser().getAsMention()));
                     break;
                 default:
                     event.getReaction().removeReaction(event.getUser()).queue();
             }
+
+            //Check if there are lingering unban requests
+            if (!unbanRequests.isEmpty()) {
+                long oneDayAgo = System.currentTimeMillis();// - (1000 * 60 * 60 * 24);
+                unbanRequests.forEach((id, requestA) -> {
+                    if (requestA.time < oneDayAgo) {
+                        TextChannel channel = DiscordSRV.getPlugin().getJda().getTextChannelById(request.channelId);
+                        if (channel != null) {
+                            cleanUpMessage(channel, id, plugin.getLangStrings().getFormatted("unbanCancel", request.requestedPlayer.getName(), "inactivity"));
+                        }
+                        unbanRequests.remove(id);
+                    }
+                });
+            }
         }
     }
 
-    public void addMessageToConfirmQueue(Message message, OfflinePlayer requestedPlayer, UUID requesterId) {
+    /**
+     * Cancels all ban requests due to inactivity
+     */
+    public void cancelAll() {
+        unbanRequests.forEach((messageId, request) -> {
+            TextChannel channel = DiscordSRV.getPlugin().getJda().getTextChannelById(request.channelId);
+            if (channel != null) {
+                Message msg = channel.editMessageById(messageId, plugin.getLangStrings().getFormatted("unbanCancel", request.requestedPlayer.getName(), "inactivity")).complete();
+
+                msg.clearReactions().queue();
+                msg.suppressEmbeds(true).queue();
+            }
+        });
+        unbanRequests.clear();
+    }
+
+    public void addMessageToQueue(Message message, OfflinePlayer requestedPlayer) {
         plugin.debugLog("added message '" + message.getId() + "to the confirm queue");
-        UnbanAttempt unbanAttempt = new UnbanAttempt(requestedPlayer, requesterId);
-        unbanAttempts.put(message.getIdLong(), unbanAttempt);
+        UnbanRequest unbanRequest = new UnbanRequest(requestedPlayer, message.getChannel().getIdLong());
+        unbanRequests.put(message.getIdLong(), unbanRequest);
 
         message.addReaction(ACCEPT).queue((useless) -> message.addReaction(CANCEL).queue()); //adds the 2 reactions to the message, making sure the ACCEPT reaction comes first
     }
 
+    /**
+     * Removes the embed and all reactions on a message. Then replaces the text with {@code newMessage}
+     */
     private void cleanUpMessage(MessageReactionAddEvent event, String newMessage) {
-        event.getTextChannel().editMessageById(event.getMessageIdLong(), newMessage).queue((msg) -> {
+        cleanUpMessage(event.getTextChannel(), event.getMessageIdLong(), newMessage);
+    }
+
+    /**
+     * Removes the embed and all reactions on a message. Then replaces the text with {@code newMessage}
+     */
+    private void cleanUpMessage(TextChannel channel, Long id, String newMessage) {
+        channel.editMessageById(id, newMessage).queue((msg) -> {
             msg.clearReactions().queue();
             msg.suppressEmbeds(true).queue();
         });
@@ -91,13 +133,15 @@ public class ConfirmManager {
         }.runTaskTimer(plugin, 40, 2L);
     }
 
-    public static class UnbanAttempt {
+    public static class UnbanRequest {
         public OfflinePlayer requestedPlayer;
-        public UUID requesterId;
+        public Long channelId;
+        public Long time;
 
-        public UnbanAttempt(OfflinePlayer requestedPlayer, UUID requesterId) {
+        public UnbanRequest(OfflinePlayer requestedPlayer, Long channelId) {
             this.requestedPlayer = requestedPlayer;
-            this.requesterId = requesterId;
+            this.channelId = channelId;
+            this.time = System.currentTimeMillis();
         }
     }
 

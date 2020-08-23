@@ -48,6 +48,7 @@ public class DiscordUnban extends JavaPlugin {
     }
     
     public void reload() {
+        confirmManager.cancelAll();
         FileConfiguration oldConfig = this.getConfig();
         reloadConfig();
         FileConfiguration config = this.getConfig();
@@ -92,6 +93,7 @@ public class DiscordUnban extends JavaPlugin {
     @Override
     public void onDisable() {
         DiscordSRV.api.unsubscribe(discordEventProcessor);
+        confirmManager.cancelAll();
     }
 
     public BanManager getBanManager() {
@@ -100,5 +102,9 @@ public class DiscordUnban extends JavaPlugin {
 
     public LangStrings getLangStrings() {
         return langStrings;
+    }
+
+    public MessageProcessor getMessageProcessor() {
+        return messageProcessor;
     }
 }
