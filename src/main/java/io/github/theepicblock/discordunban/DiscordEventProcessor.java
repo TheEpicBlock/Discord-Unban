@@ -36,7 +36,7 @@ public class DiscordEventProcessor {
     }
 
     public static class JDAReactionListener extends ListenerAdapter {
-        ConfirmManager confirmManager;
+        final ConfirmManager confirmManager;
 
         public JDAReactionListener(ConfirmManager confirmManager) {
             this.confirmManager = confirmManager;

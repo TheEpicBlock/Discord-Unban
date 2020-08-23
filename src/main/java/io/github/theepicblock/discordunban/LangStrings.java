@@ -5,7 +5,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Logger;
 

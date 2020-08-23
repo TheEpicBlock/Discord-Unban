@@ -27,7 +27,7 @@ public class DiscordUnbanUtils {
     /**
      * Checks if a channel is in a list of channels
      *
-     * @param msg       msg to check
+     * @param channel   channel to check
      * @param channelId channels to check for
      * @return true if the message is in the correct channel
      */
@@ -66,23 +66,12 @@ public class DiscordUnbanUtils {
     /**
      * checks if the owner of a message has a certain role
      *
-     * @param msg  the msg of someone who we would like to check
-     * @param role role to check for
-     * @return true if the user has the role
-     */
-    public static boolean checkForPerms(Message msg, Role role) {
-        return checkForPerms(msg.getGuild().getMemberById(msg.getAuthor().getIdLong()), role);
-    }
-
-    /**
-     * checks if the owner of a message has a certain role
-     *
      * @param msg    the msg of someone who we would like to check
      * @param roleId role to check for
      * @return true if the user has the role
      */
     public static boolean checkForPerms(Message msg, String roleId) {
-        return checkForPerms(msg.getGuild().getMemberById(msg.getAuthor().getIdLong()), roleId);
+        return checkForPerms(msg.getMember(), roleId);
     }
 
     /**

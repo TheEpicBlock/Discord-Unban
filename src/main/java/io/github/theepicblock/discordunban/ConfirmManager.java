@@ -9,7 +9,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -148,9 +147,9 @@ public class ConfirmManager {
     }
 
     public static class UnbanRequest {
-        public OfflinePlayer requestedPlayer;
-        public Long channelId;
-        public Long time;
+        public final OfflinePlayer requestedPlayer;
+        public final Long channelId;
+        public final Long time;
 
         public UnbanRequest(OfflinePlayer requestedPlayer, Long channelId) {
             this.requestedPlayer = requestedPlayer;

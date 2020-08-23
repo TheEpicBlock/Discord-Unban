@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.UUID;
 
 public class VanillaBanManager implements BanManager {
-    private JavaPlugin plugin;
+    private final JavaPlugin plugin;
 
     public VanillaBanManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -21,7 +21,9 @@ public class VanillaBanManager implements BanManager {
 
     public void unban(OfflinePlayer player, UUID staffmember) {
         Bukkit.getScheduler().runTask(plugin, () -> { //this is a bukkit api thing. So I should run it on the main thread to be safe
-            plugin.getServer().getBanList(BanList.Type.NAME).pardon(player.getName());
+            if (player.getName() != null) {
+                plugin.getServer().getBanList(BanList.Type.NAME).pardon(player.getName());
+            }
         });
     }
 
@@ -30,6 +32,7 @@ public class VanillaBanManager implements BanManager {
     }
 
     public EmbedBuilder getBanInfo(OfflinePlayer player, DateFormat dateFormat, @Nullable String[] args) {
+        if (player.getName() == null) return new EmbedBuilder().appendDescription("Error, can't find player name");
         //get ban info and check if it's not null
         BanEntry banEntry = plugin.getServer().getBanList(BanList.Type.NAME).getBanEntry(player.getName());
         if (banEntry == null) return new EmbedBuilder().appendDescription("Error, can't find ban information");
