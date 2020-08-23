@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Set;
 
 public class LangStrings {
-    private Map<String, String> stringMap = new HashMap<>();
+    private final Map<String, String> stringMap = new HashMap<>();
 
     public LangStrings(FileConfiguration config) {
         Set<String> keys = config.getKeys(false);
