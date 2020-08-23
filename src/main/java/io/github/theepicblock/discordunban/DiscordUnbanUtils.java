@@ -97,17 +97,17 @@ public class DiscordUnbanUtils {
     }
 
     /**
-     * @param Message message to parse. Eg "<@!123456>", "123456" or "Notch"
+     * @param message message to parse. Eg "<@!123456>", "123456" or "Notch"
      * @return the offline player matching the string
      */
-    public static OfflinePlayer getPlayerFromTargetted(String Message) {
-        if (Message.equals("")) {
+    public static OfflinePlayer getPlayerFromTargetted(String message) {
+        if (message.equals("")) {
             return null;
         }
 
-        if (Message.charAt(0) == '<') {//This is a discord mention
+        if (message.charAt(0) == '<') {//This is a discord mention
             try {
-                String id = Message.substring(3, Message.length() - 1); // converts "<@!1234>" to "1234"
+                String id = message.substring(3, message.length() - 1); // converts "<@!1234>" to "1234"
                 UUID playerId = DiscordSRV.getPlugin().getAccountLinkManager().getUuid(id);
                 return Bukkit.getOfflinePlayer(playerId);
             } catch (Exception e) {
@@ -115,9 +115,9 @@ public class DiscordUnbanUtils {
             }
         }
 
-        if (Character.isDigit(Message.charAt(0))) {
+        if (Character.isDigit(message.charAt(0))) {
             try {
-                UUID playerId = DiscordSRV.getPlugin().getAccountLinkManager().getUuid(Message);
+                UUID playerId = DiscordSRV.getPlugin().getAccountLinkManager().getUuid(message);
                 return Bukkit.getOfflinePlayer(playerId);
             } catch (Exception e) {
                 return null;
@@ -125,7 +125,7 @@ public class DiscordUnbanUtils {
         }
 
         //this is probably a playername
-        OfflinePlayer player = Bukkit.getOfflinePlayer(Message);
+        OfflinePlayer player = Bukkit.getOfflinePlayer(message);
         if (!player.hasPlayedBefore()) { //this is most likely an invalid name
             return null;
         }
