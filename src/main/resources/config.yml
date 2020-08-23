@@ -8,3 +8,5 @@ RequireConfirmation: true               #requires a reaction to confirm the unba
 DateFormat: "HH:mm dd-MM-yyyy"          #format used by this plugin. see https://docs.oracle.com/javase/10/docs/api/java/text/SimpleDateFormat.html
 HeadInInfo: true                        #includes the head of the mc player in the baninfo response
 Debug: false                            #if true, console will be spammed with debug info
+RemoveUseless: 5                        #removes "can't find", "not linked", "not banned", "more args" and "no perm" messages after a x seconds.
+RemoveInfo: 0                           #removes info responses after x seconds

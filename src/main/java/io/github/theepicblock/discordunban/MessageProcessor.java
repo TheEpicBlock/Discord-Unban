@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -31,6 +32,8 @@ public class MessageProcessor {
     private final boolean requireConfirmation;
     private final ConfirmManager confirmManager;
     private final boolean headInInfo;
+    private final int removeUseless;
+    private final int removeInfo;
 
 
     public MessageProcessor(DiscordUnban plugin, FileConfiguration config, ConfirmManager confirmManager) {
@@ -46,6 +49,8 @@ public class MessageProcessor {
         showInfoAfterUnban  = config.getBoolean("ShowInfoAfterUnban");
         requireConfirmation = config.getBoolean("RequireConfirmation");
         headInInfo          = config.getBoolean("HeadInInfo");
+        removeUseless       = config.getInt("RemoveUseless");
+        removeInfo          = config.getInt("RemoveInfo");
 
         //debug info
         if (enabledChannels.size() > 0) {
@@ -81,14 +86,14 @@ public class MessageProcessor {
         DiscordUtil.deleteMessage(msg);
 
         if (!DiscordUnbanUtils.checkForPerms(msg, roleId)) { //check perms
-            sendReply(msg, format("noPermUnban", msg.getAuthor().getAsMention()));
+            sendReply(msg, format("noPermUnban", msg.getAuthor().getAsMention()), removeUseless);
             return;
         }
 
         String[] args = DiscordUnbanUtils.getArgsFromCommand(msg.getContentRaw(), unbanCommand);
 
         if (args == null) {
-            sendReply(msg, format("moreArgs", msg.getAuthor().getAsMention()));
+            sendReply(msg, format("moreArgs", msg.getAuthor().getAsMention()), removeUseless);
             return;
         }
 
@@ -96,18 +101,18 @@ public class MessageProcessor {
         String playerStr = args[0]; //the player is the first argument, the rest is ignored
         OfflinePlayer requestedPlayer = DiscordUnbanUtils.getPlayerFromTargetted(playerStr);
         if (requestedPlayer == null) {
-            sendReply(msg, format("cantFind", msg.getAuthor().getAsMention(), playerStr));
+            sendReply(msg, format("cantFind", msg.getAuthor().getAsMention(), playerStr), removeUseless);
             return;
         }
 
         if (!plugin.getBanManager().isBanned(requestedPlayer)) { //you can't unban someone who isn't banned
-            sendReply(msg, format("notBanned", msg.getAuthor().getAsMention(), requestedPlayer.getName()));
+            sendReply(msg, format("notBanned", msg.getAuthor().getAsMention(), requestedPlayer.getName()), removeUseless);
             return;
         }
 
         UUID requesterID = DiscordSRV.getPlugin().getAccountLinkManager().getUuid(msg.getAuthor().getId()); //get the person who is trying to unban someone
         if (requesterID == null) {
-            sendReply(msg, format("notLinked", msg.getAuthor().getAsMention()));
+            sendReply(msg, format("notLinked", msg.getAuthor().getAsMention()), removeUseless);
             return;
         }
 
@@ -145,14 +150,14 @@ public class MessageProcessor {
         DiscordUtil.deleteMessage(msg);
 
         if (!DiscordUnbanUtils.checkForPerms(msg, roleId)) {
-            sendReply(msg, format("noPermInfo", msg.getAuthor().getAsMention()));
+            sendReply(msg, format("noPermInfo", msg.getAuthor().getAsMention()), removeUseless);
             return;
         }
 
         String[] args = DiscordUnbanUtils.getArgsFromCommand(msg.getContentRaw(), infoCommand);
 
         if (args == null) {
-            sendReply(msg, format("moreArgs", msg.getAuthor().getAsMention()));
+            sendReply(msg, format("moreArgs", msg.getAuthor().getAsMention()), removeUseless);
             return;
         }
 
@@ -161,7 +166,7 @@ public class MessageProcessor {
         OfflinePlayer requestedPlayer = DiscordUnbanUtils.getPlayerFromTargetted(playerStr);
 
         if (requestedPlayer == null) {
-            sendReply(msg, format("cantFind", msg.getAuthor().getAsMention(), playerStr));
+            sendReply(msg, format("cantFind", msg.getAuthor().getAsMention(), playerStr), removeUseless);
             return;
         }
 
@@ -182,15 +187,25 @@ public class MessageProcessor {
         messageBuilder.setEmbed(infoEmbed.build());
 
 
-        sendReply(msg, messageBuilder.build());
+        sendReply(msg, messageBuilder.build(), removeInfo);
     }
 
-    private void sendReply(Message replyMessage, String message) {
-        DiscordUtil.sendMessage(replyMessage.getTextChannel(), message);
+    private void sendReply(Message replyMessage, String message, int deleteAfter) {
+        DiscordUtil.sendMessage(replyMessage.getTextChannel(), message, deleteAfter * 1000, false);
     }
 
     private void sendReply(Message replyMessage, Message message) {
-        DiscordUtil.queueMessage(replyMessage.getTextChannel(), message);
+        sendReply(replyMessage, message, 0);
+    }
+
+    private void sendReply(Message replyMessage, Message message, int deleteAfter) {
+        if (deleteAfter > 0) {
+            DiscordUtil.queueMessage(replyMessage.getTextChannel(), message, (sentMessage) -> {
+                sentMessage.delete().queueAfter(deleteAfter, TimeUnit.SECONDS);
+            });
+        } else {
+            DiscordUtil.queueMessage(replyMessage.getTextChannel(), message);
+        }
     }
 
     private void sendReply(Message replyMessage, Message message, Consumer<Message> consumer) {
